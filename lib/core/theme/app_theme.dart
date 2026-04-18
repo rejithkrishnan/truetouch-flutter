@@ -26,13 +26,20 @@ abstract final class AppColors {
 
   // Random nursery card label colours (same palette as Godot)
   static const List<Color> nurseryPalette = [
-    Color(0xFFFF7373), // Soft Coral
-    Color(0xFF73D999), // Soft Mint
-    Color(0xFF73A6FF), // Soft Sky
-    Color(0xFFBF8CE6), // Soft Lavender
-    Color(0xFFFFCC4D), // Soft Sunbeam
-    Color(0xFFFF9966), // Soft Peach
+    softCoral,
+    softMint,
+    softSky,
+    softLavender,
+    goldenSunbeam,
+    softPeach,
   ];
+
+  static const Color softCoral = Color(0xFFFF7373);
+  static const Color softMint = Color(0xFF73D999);
+  static const Color softSky = Color(0xFF73A6FF);
+  static const Color softLavender = Color(0xFFBF8CE6);
+  static const Color goldenSunbeam = Color(0xFFFFCC4D);
+  static const Color softPeach = Color(0xFFFF9966);
 
   // Toggle on / off colours (Parent Menu)
   static const Color toggleOn = Color(0xFF4CAF50);

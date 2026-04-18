@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers.dart';
 import '../../core/services/audio_service.dart';
 import '../../shared/widgets/animated_background.dart';
+import '../../shared/widgets/premium_animated_text.dart';
 import 'widgets/activity_card.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -94,42 +95,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
 // ── Continuous title: each letter bobs in a slow staggered wave ──────────────
 Widget _AnimatedTitle(BuildContext context) {
-  const text = 'True Touch';
-  final style = Theme.of(context).textTheme.displayLarge!;
-  final letters = text.characters.toList();
-
-  return Row(
-    mainAxisSize: MainAxisSize.min,
-    children: List.generate(letters.length, (i) {
-      if (letters[i] == ' ') return const SizedBox(width: 10);
-      return Text(letters[i], style: style)
-          .animate(onPlay: (c) => c.repeat(reverse: true))
-          .moveY(
-            begin: 0,
-            end: -7,
-            duration: 1200.ms,
-            delay: (i * 90).ms,
-            curve: Curves.easeInOut,
-          )
-          .shimmer(
-            duration: 2600.ms,
-            delay: (i * 90).ms,
-            color: Colors.white.withValues(alpha: 0.5),
-          );
-    }),
+  return PremiumAnimatedText(
+    text: 'True Touch',
+    style: Theme.of(context).textTheme.displayLarge,
+    animationType: AnimationType.bobbing,
   );
 }
 
 // ── Continuous subtitle: gentle float + shimmer loop ─────────────────────────
 Widget _AnimatedSubtitle(BuildContext context) {
-  return Text(
-    'Safe Learning Playroom',
+  return PremiumAnimatedText(
+    text: 'Safe Learning Playroom',
     style: Theme.of(context).textTheme.titleLarge,
-  )
-      .animate(onPlay: (c) => c.repeat(reverse: true))
-      .fadeIn(begin: 0.65, duration: 2000.ms)
-      .moveY(begin: 3, end: -3, duration: 2000.ms, curve: Curves.easeInOut)
-      .shimmer(duration: 3200.ms, color: Colors.white.withValues(alpha: 0.4));
+    animateCharacters: false,
+    animationType: AnimationType.bobbing,
+    bobAmount: 3.0,
+  );
 }
 
 Widget _AnimatedWelcomeGreeting(BuildContext context, WidgetRef ref) {
@@ -143,36 +124,19 @@ Widget _AnimatedWelcomeGreeting(BuildContext context, WidgetRef ref) {
       borderRadius: BorderRadius.circular(30),
       border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
     ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const Text(
-          'Welcome, ',
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w900,
-            color: Color(0xFFFFCC4D), // Golden Sunbeam
-            letterSpacing: 0.5,
-            shadows: [
-              Shadow(color: Colors.black26, offset: Offset(0, 1), blurRadius: 2),
-            ],
-          ),
-        ),
-        Text(
-          name,
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w900,
-            color: Color(0xFFFFCC4D), // Golden Sunbeam
-            shadows: [
-              Shadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 4),
-            ],
-          ),
-        ),
-      ],
-    )
-        .animate(onPlay: (c) => c.repeat())
-        .shimmer(duration: 2000.ms, color: Colors.white.withValues(alpha: 0.65)),
+    child: PremiumAnimatedText(
+      text: 'Welcome, $name',
+      style: const TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.w900,
+        color: Color(0xFFFFCC4D), // Golden Sunbeam
+        letterSpacing: 0.5,
+        shadows: [
+          Shadow(color: Colors.black26, offset: Offset(0, 1), blurRadius: 4),
+        ],
+      ),
+      animationType: AnimationType.none, // Just shimmer and staggered entrance
+    ),
   )
       .animate()
       .fadeIn(duration: 800.ms)
@@ -180,8 +144,8 @@ Widget _AnimatedWelcomeGreeting(BuildContext context, WidgetRef ref) {
 }
 
 Widget _SectionHeader(BuildContext context, String label) {
-  return Text(
-    label,
+  return PremiumAnimatedText(
+    text: label,
     style: const TextStyle(
       fontSize: 18,
       fontWeight: FontWeight.w700,
@@ -191,7 +155,7 @@ Widget _SectionHeader(BuildContext context, String label) {
         Shadow(color: Colors.black26, offset: Offset(0, 1), blurRadius: 2),
       ],
     ),
-  )
-      .animate(onPlay: (c) => c.repeat())
-      .shimmer(duration: 4000.ms, color: Colors.white.withValues(alpha: 0.3));
+    animateCharacters: false,
+    animationType: AnimationType.none,
+  );
 }

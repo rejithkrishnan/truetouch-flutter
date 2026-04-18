@@ -8,7 +8,7 @@ import '../../../core/providers.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/models/content_item.dart';
 import '../../../shared/widgets/breathing_widget.dart';
-
+import '../../../shared/widgets/premium_animated_text.dart';
 
 class ContentCard extends ConsumerStatefulWidget {
   final ContentItem item;
@@ -77,7 +77,7 @@ class _ContentCardState extends ConsumerState<ContentCard> {
     // Record progress and update star rating
     final progress = ref.read(progressServiceProvider);
     await progress.recordTap(widget.moduleId, widget.item.id);
-    
+
     // Signal progress update to listeners (like BoardBookScreen for celebrations)
     ref.read(progressUpdateProvider.notifier).state++;
 
@@ -119,15 +119,20 @@ class _ContentCardState extends ConsumerState<ContentCard> {
         BreathingWidget(
           child: GestureDetector(
                 onTapDown: (details) {
-                  if (ref.read(audioServiceProvider).isInteractionLocked)
+                  if (ref.read(audioServiceProvider).isInteractionLocked) {
                     return;
+                  }
                   setState(() => _tapPosition = details.localPosition);
                 },
                 onTap: _handleTap,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Colors.white.withValues(alpha: 0.15), // Glassmorphism
                     borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      width: 2,
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.15),
@@ -174,53 +179,36 @@ class _ContentCardState extends ConsumerState<ContentCard> {
                             ),
                           ),
 
-                        // Label at bottom - Animated Spelling
+                        // Label - Floating through the bottom 10% area
                         Positioned(
-                          bottom: 16,
+                          bottom: 0,
                           left: 0,
                           right: 0,
-                          child: Row(
-                            key: ValueKey('spelling_$_spellingKey'),
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: widget.item.name.characters.toList().asMap().entries.map((entry) {
-                              return Text(
-                                  entry.value,
-                                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                    color: const Color(0xFFFFCC4D), // Golden Sunbeam
-                                    shadows: [
-                                      const Shadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 4),
-                                    ],
+                          height: MediaQuery.of(context).size.height * 0.1,
+                          child: Center(
+                            child: PremiumAnimatedText(
+                              key: ValueKey('spelling_$_spellingKey'),
+                              text: widget.item.name,
+                              style: Theme.of(
+                                context,
+                              ).textTheme.headlineMedium?.copyWith(
+                                fontSize: 54,
+                                color: const Color(
+                                  0xFFFFCC4D,
+                                ), // Golden Sunbeam
+                                shadows: [
+                                  Shadow(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                    offset: const Offset(0, 4),
+                                    blurRadius: 8,
                                   ),
-                                )
-                                .animate()
-                                .fadeIn(delay: (entry.key * 140).ms)
-                                .scale(
-                                  delay: (entry.key * 140).ms,
-                                  duration: 900.ms,
-                                  curve: Curves.elasticOut,
-                                  begin: const Offset(0.0, 0.0),
-                                  end: const Offset(1.0, 1.0),
-                                )
-                                .rotate(
-                                  delay: (entry.key * 140).ms,
-                                  duration: 600.ms,
-                                  curve: Curves.elasticOut,
-                                  begin: -0.1,
-                                  end: 0,
-                                )
-                                .moveY(
-                                  delay: (entry.key * 140).ms,
-                                  duration: 600.ms,
-                                  curve: Curves.easeOutBack,
-                                  begin: 30,
-                                  end: 0,
-                                )
-                                .shimmer(
-                                  delay: (entry.key * 140 + 600).ms,
-                                  duration: 1200.ms,
-                                  color: Colors.white.withValues(alpha: 0.5),
-                                );
-                            }).toList(),
+                                ],
+                              ),
+                              animationType: AnimationType.bobbing,
+                              hasDrift: true,
+                              staggerDelay: 140.ms,
+                              driftAmount: 20.0,
+                            ),
                           ),
                         ),
 
@@ -230,7 +218,9 @@ class _ContentCardState extends ConsumerState<ContentCard> {
                             top: 8,
                             right: 8,
                             child: _StarRatingBadge(
-                              key: ValueKey('stars_${_starRating}_${_spellingKey}'),
+                              key: ValueKey(
+                                'stars_${_starRating}_$_spellingKey',
+                              ),
                               stars: _starRating,
                             ),
                           ),
@@ -304,23 +294,23 @@ class _StarRatingBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.55),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.amber.shade300, width: 0.8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: List.generate(5, (i) {
-          return Icon(
-            i < stars ? Icons.star_rounded : Icons.star_outline_rounded,
-            size: 14,
-            color: i < stars ? Colors.amber : Colors.white38,
-          );
-        }),
-      ),
-    )
+          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.55),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.amber.shade300, width: 0.8),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(5, (i) {
+              return Icon(
+                i < stars ? Icons.star_rounded : Icons.star_outline_rounded,
+                size: 14,
+                color: i < stars ? Colors.amber : Colors.white38,
+              );
+            }),
+          ),
+        )
         .animate()
         .scale(
           begin: const Offset(0, 0),

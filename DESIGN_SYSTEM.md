@@ -1,83 +1,143 @@
 # 🧸 TrueTouch Design System & Memory Bank
 
-Welcome to the **TrueTouch Memory Bank**. This document serves as the single source of truth for the app's design language, sensory philosophy, and interactive patterns. Every new module (like Sound Match) must adhere to these standards to ensure a premium, cohesive experience for children and parents.
+Welcome to the **TrueTouch Memory Bank**. This document is the single source of truth for the entire application. It documents our architecture, design language, sensory philosophy, and technical standards.
 
 ---
 
-## 🌟 1. Design Philosophy
-- **Sensory Friendly**: Use soft, nursery-inspired colors. Avoid harsh primary colors or high-contrast vibrations that might overstimulate.
-- **Micro-Interactions**: Every tap should feel alive. Use confetti, scaling, and haptic feedback to reward exploration.
-- **Premium Simplicity**: Use clean, modern typography (Quicksand) and translucent "glassmorphism" to make the app feel high-end, not "cheaply child-like."
-- **Safe & Calm**: Backgrounds should be soft (Splash/Peach tints) with gentle animations (floating, rhythmic bobbing).
+## 🚀 1. Project Core & Tech Stack
+
+TrueTouch is built as a high-end, sensory-friendly educational platform for children.
+
+-   **Framework**: Flutter (Targeting iOS/Android/Tablet).
+-   **State Management**: `flutter_riverpod` (AsyncNotifier, Provider patterns).
+-   **Navigation**: `go_router` (Declarative routing).
+-   **Audio Engine**: `just_audio` (Low-latency playback).
+-   **Animation Engine**: `flutter_animate` (Centralized via `PremiumAnimatedText`).
+-   **Persistence**: `shared_preferences` (Settings & Progress).
+
+### Directory Structure
+We follow a **Feature-Sliced** organization:
+-   `lib/core/`: Application-wide services, routing, and themes.
+-   `lib/data/`: Models, repositories, and mock data.
+-   `lib/features/`: Independent modules (Home, Board Book, Sound Match).
+-   `lib/shared/`: Reusable widgets used across multiple features.
 
 ---
 
-## 🎨 2. The Nursery Palette
-Located in: `lib/core/theme/app_theme.dart`
+## 🏗️ 2. Architectural Patterns
 
+### Global Services
+Located in `lib/core/services/`, these are accessed via Riverpod providers in `lib/core/providers.dart`:
+-   **`AudioService`**: Manages VO/SFX buffers and volumes.
+-   **`ProgressService`**: Persists star ratings and engagement stats.
+-   **`HapticService`**: Centralized tactile feedback engine.
+-   **`ScreenTimeService`**: Monitors session duration and triggers lockout.
+
+### Persistence Strategy
+-   **Settings**: Persistent flags (vibration, voice enabled, max screen time).
+-   **Progress**: Keyed by `moduleId_categoryId_itemId` to track 1-5 star engagement.
+
+---
+
+## 🌟 3. Sensory Philosophy
+-   **Calmness First**: Use soft, nursery-inspired colors. Avoid harsh primary colors or high-contrast vibrations.
+-   **Micro-Rewards**: Every intentional tap provides immediate sensory feedback (confetti, scale, or haptics).
+-   **Premium Simplicity**: Use clean, modern typography (Quicksand) and translucent "glassmorphism" to professionalize the experience.
+
+---
+
+## 🎨 4. Branding & Tokens
+
+### The Nursery Palette
 | Color Name | Hex Code | Purpose |
 | :--- | :--- | :--- |
-| **Splash / Background** | `#F1D7C0` | Primary background and boot splash color. |
-| **Soft Coral** | `#FF7373` | UI Accents, Card Labels. |
-| **Soft Mint** | `#73D999` | Success states, Card Labels. |
-| **Soft Sky** | `#73A6FF` | Navigation, Audio toggles. |
-| **Soft Lavender** | `#BF8CE6` | Secondary categories, progress indicators. |
-| **Golden Sunbeam** | `#FFCC4D` | **Premium Accents**, Welcome text, Section Headers. |
-| **Soft Peach** | `#FF9966` | Secondary text, UI highlights. |
-| **Translucent White** | `rgba(255, 255, 255, 0.1)` | Section containers, "Glass" panels. |
+| **Splash / Background** | `#F1D7C0` | Primary Scaffolds. |
+| **Golden Sunbeam** | `#FFCC4D` | **Premium Accents**, Shimmers, Success. |
+| **Soft Coral** | `#FF7373` | UI Highlights, Card Labels. |
+| **Soft Mint** | `#73D999` | Success states. |
+| **Soft Sky** | `#73A6FF` | Navigation & Inactive states. |
+| **Soft Lavender** | `#BF8CE6` | Category headers. |
+| **Translucent White** | `0.1 - 0.15 Alpha` | Glass containers & Panels. |
+
+### Typography & Corners
+-   **Font**: Google Fonts: **Quicksand** (Weights: 500 to 900).
+-   **Standard Radius**: `24px` for cards, `14px` for settings tiles.
+-   **Secondary Radius**: `32px` for large home sections.
 
 ---
 
-## 🖋️ 3. Typography
-We use **Google Fonts: Quicksand** for its rounded, friendly, yet professional character.
+## ✨ 5. Standardized Interactive Atoms
 
-- **Display Large**: (64px, 900 weight) — Primary titles (e.g., "True Touch").
-- **Title Large**: (24px, 600 weight) — Sub-titles and section descriptors.
-- **Headline Medium**: (48px, 800 weight) — Card labels and oversized interactive text.
-- **Body Large**: (22px, 700 weight) — Interactive prompts and menu items.
-- **Body Medium**: (18px, 500 weight) — Settings labels and secondary info.
+### 1. Premium Animations (`PremiumAnimatedText`)
+Mandatory for all text. Located in `lib/shared/widgets/premium_animated_text.dart`.
+-   **`bobbing`**: Rhythmic vertical wave for titles.
+-   **`drifting`**: Organic wandering for scene objects.
+-   **`Dancing Drift`**: Combined `bobbing` + `hasDrift` for maximum engagement.
 
----
+### 2. Tactile DNA (Haptics)
+-   **Card Tap**: `heavyImpact`.
+-   **Success**: `mediumImpact`.
+-   **Parental Gate**: 100ms `selectionClick` pulse.
 
-## ✨ 4. Visual Atoms & Decorations
-
-### Corner Radii
-- **Activity Cards**: `24px` (pill-like or rounded rect).
-- **Sub-pages / Settings Tiles**: `14px`.
-- **Large Sections (Home)**: `32px`.
-
-### Shadows
-- **Card Shadow**: `BoxShadow(color: Color(0x1F000000), blurRadius: 20, offset: Offset(0, 6))`
-- **Text Glow**: Subtle shadows for golden text: `Shadow(color: Colors.black26, offset: Offset(0, 1), blurRadius: 2)`.
-
----
-
-## 📳 5. Interactive & Tactile Patterns
-
-### Haptic DNA
-| Action | Pattern | Implementation |
-| :--- | :--- | :--- |
-| **Card Tap** | Heavy Impact | `hapticServiceProvider.heavyImpact()` |
-| **Success/Unlock** | Medium Impact | `HapticFeedback.mediumImpact()` |
-| **Parental Hold** | Pulse Loop | `Timer` (100ms interval) + `selectionClick()` |
-
-### Golden Shimmer
-- **Usage**: Apply `.shimmer()` using `flutter_animate` to all Golden Sunbeam text.
-- **Duration**: `2000.ms` for greetings, `4000.ms` for section headers.
+### 3. Unified Card DNA
+All interactive items (Content Cards, Activity Cards, Game Tiles) must adhere to:
+-   **Background**: `Colors.white.withValues(alpha: 0.15)` (Glassmorphism).
+-   **Border**: `1px` white border at `0.2` alpha.
+-   **Rounding**: `radius: 24px`.
+-   **Standard Shadow**: 
+    - `offset: Offset(0, 8)`
+    - `blurRadius: 12`
+    - `alpha: 0.15` (Black)
+-   **Interactive Bounce**: Scale from `1.0` -> `0.9` -> `1.0` over 600ms total.
 
 ---
 
-## 📦 6. Shared Widget Library
-- **`ActivityCard`**: Main entry point for modules on the home screen.
-- **`SettingsTile`**: Standardized row for settings with icons and subtitles.
-- **`VolumeSliderTile`**: Custom slider with icon leading and value tracking.
-- **`StatChip`**: Circular analytics visualization with gold/white accents.
+## 🔊 6. Audio Sensory Association
+We follow a strict sequence to build sensory understanding:
+1.  **Voice (Name)**: Speak the word clearly.
+2.  **Sound (Action)**: Play the corresponding action/animal sound.
+-   **Buffer**: **0ms** delay between clips for tight neural association.
+-   **Context**: VO always respects the `parentalSettingsProvider` level.
 
 ---
 
-## 🎮 7. Upcoming: Sound Match Patterns
-- **Grid Layout**: 2x2 or 2x3 grid of cards.
-- **Match Animation**: Cards should scale up and shimmer when correctly matched.
-- **Success State**: Full-screen confetti celebration using `CategoryCelebrationOverlay`.
+## 💾 7. Data Layer Schemas
+
+### Models (`lib/data/models/`)
+-   **`Module`**: Top-level entry (Name, Icon, Route).
+-   **`Category`**: Group of items (Name, Image).
+-   **`ContentItem`**: The atomic learning unit.
+    -   `voicePath`: Recording of the word.
+    -   `soundPath`: Recording of the action/effect.
+
+---
+
+## 🛡️ 8. Child Safety & Parental Gate
+-   **Gate Logic**: 3-second `onLongPress` required to exit the Child Zone.
+-   **Screen Time**: Automatically redirects to the Parental Menu when the daily limit (set by `ScreenTimeService`) is reached.
+
+---
+
+## 📦 9. Shared Widget Inventory
+-   **`BreathingWidget`**: Subtle scale-loop for interactive elements.
+-   **`PremiumAnimatedText`**: Standardized text motion.
+-   **`CategoryCelebrationOverlay`**: Full-screen confetti and star reward logic.
+-   **`VolumeSliderTile`**: Premium settings slider.
+
+---
+
+## 🎮 10. Feature Modules
+
+### **HomeScreen (Home Hub)**
+-   Displays the "Module Grill" (Board Book, Sound Match, etc.).
+-   Features the Premium Greeting (`PremiumAnimatedText` with Shimmer).
+
+### **Board Book**
+-   Interactive "Flashcard" style learning.
+-   Supports category-based swiping and per-item star progress.
+
+### **Sound Match (Upcoming)**
+-   2x2 grid matching game.
+-   Uses the standardized "Dancing Drift" for game tiles.
 
 ---

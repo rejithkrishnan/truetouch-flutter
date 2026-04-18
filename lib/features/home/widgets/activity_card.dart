@@ -14,7 +14,6 @@ class ActivityCard extends StatelessWidget {
     return BreathingWidget(
       child: GestureDetector(
         onTap: () {
-          // Play click sound/haptics in future if desired
           context.push(module.route);
         },
         child: Container(
@@ -27,7 +26,6 @@ class ActivityCard extends StatelessWidget {
                 Image.asset(
                   module.icon,
                   fit: BoxFit.cover,
-                  // Fallback
                   errorBuilder: (_, __, ___) => const Center(
                     child: Icon(
                       Icons.extension_rounded,

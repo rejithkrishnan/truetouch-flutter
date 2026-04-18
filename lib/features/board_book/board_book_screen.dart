@@ -10,7 +10,7 @@ import '../../../data/models/category.dart';
 import '../../../data/models/content_item.dart';
 import 'providers/board_book_providers.dart';
 import 'widgets/content_card.dart';
-import '../../../shared/widgets/animated_title.dart';
+import '../../../shared/widgets/premium_animated_text.dart';
 import '../../../shared/widgets/category_celebration_overlay.dart';
 import '../../../core/services/progress_service.dart';
 
@@ -155,9 +155,10 @@ class _BoardBookScreenState extends ConsumerState<BoardBookScreen> {
                               final safeIndex = pageIndex % pages.length;
                               final currentCategory = pages[safeIndex].category;
                               
-                              return AnimatedTitle(
+                              return PremiumAnimatedText(
                                 text: currentCategory.name,
                                 style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 40),
+                                animationType: AnimationType.bobbing,
                               );
                             },
                           ),

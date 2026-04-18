@@ -147,6 +147,42 @@ class AudioService {
     }
   }
 
+  /// Plays a tight sequence: Voice Name -> Action Sound (0ms gap)
+  Future<void> playInteractionSequence(String? voicePath, String? soundPath) async {
+    if (!_settings.isSoundEnabled || _isCardSequencePlaying) return;
+    _isCardSequencePlaying = true;
+
+    try {
+      final vol = _settings.voiceVolume;
+      await _voicePlayer.setVolume(vol);
+      await _soundPlayer.setVolume(vol);
+
+      // 1. Voice Name
+      if (voicePath != null && voicePath.isNotEmpty) {
+        await _voicePlayer.setAsset(voicePath);
+        await _voicePlayer.seek(Duration.zero);
+        await _voicePlayer.play();
+        try {
+          await _awaitPlayback(_voicePlayer);
+        } catch (_) {}
+      }
+
+      // 2. Action Sound (0ms delay as per Golden Rules)
+      if (soundPath != null && soundPath.isNotEmpty) {
+        await _soundPlayer.setAsset(soundPath);
+        await _soundPlayer.seek(Duration.zero);
+        await _soundPlayer.play();
+        try {
+          await _awaitPlayback(_soundPlayer);
+        } catch (_) {}
+      }
+    } catch (_) {
+      // Ignore
+    } finally {
+      _isCardSequencePlaying = false;
+    }
+  }
+
   /// Plays a one-off sound effect (e.g. trophy, button click).
   Future<void> playSound(String assetPath) async {
     if (!_settings.isSoundEnabled) return;
