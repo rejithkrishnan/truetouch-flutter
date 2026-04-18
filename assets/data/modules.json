@@ -1,0 +1,20 @@
+{
+  "modules": [
+    {
+      "id": "board_book",
+      "name": "Board Book",
+      "icon": "assets/modules/board_book/icon.webp",
+      "route": "/board-book",
+      "dataPath": "assets/modules/board_book/content.json",
+      "enabled": true
+    },
+    {
+      "id": "sound_match",
+      "name": "Sound Match",
+      "icon": "assets/modules/sound_match/icon.webp",
+      "route": "/sound-match",
+      "dataPath": "assets/modules/sound_match/content.json",
+      "enabled": true
+    }
+  ]
+}

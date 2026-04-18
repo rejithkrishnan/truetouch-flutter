@@ -1,0 +1,74 @@
+name: trutouch
+description: TrueTouch - A toddler-friendly sensory exploration and early learning app.
+version: 1.0.0+1
+publish_to: none
+
+environment:
+  sdk: ^3.7.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Navigation
+  go_router: ^14.8.1
+
+  # Audio
+  just_audio: ^0.9.42
+  audioplayers: ^6.1.0
+
+  # Video
+  video_player: ^2.9.3
+
+  # Persistence
+  shared_preferences: ^2.3.4
+
+  # Animations & UI
+  flutter_animate: ^4.5.2
+  confetti: ^0.8.0
+  google_fonts: ^6.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.4.13
+  riverpod_generator: ^2.6.1
+  flutter_launcher_icons: ^0.14.3
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/backgrounds/
+    - assets/images/
+    - assets/branding/
+    - assets/audio/
+    - assets/data/
+    - assets/data/modules.json
+    - assets/modules/board_book/
+    - assets/modules/board_book/content.json
+    - assets/modules/board_book/icon.webp
+    - assets/modules/board_book/images/
+    - assets/modules/board_book/audio/voice/
+    - assets/modules/board_book/audio/sounds/
+    - assets/modules/sound_match/
+    - assets/modules/sound_match/content.json
+    - assets/modules/sound_match/icon.webp
+    - assets/modules/sound_match/images/
+    - assets/modules/sound_match/audio/voice/
+    - assets/modules/sound_match/audio/sounds/
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/icon.png"
+  adaptive_icon_background: "#FFF3E0"
+  adaptive_icon_foreground: "assets/images/icon.png"
+  min_sdk_android: 21
+  web:
+    generate: false
