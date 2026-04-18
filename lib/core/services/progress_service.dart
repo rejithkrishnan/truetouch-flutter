@@ -33,14 +33,14 @@ class ProgressService {
   }
 
   /// Star rating 1–5 based on tap count.
-  /// 1 tap=1★, 3 taps=2★, 6 taps=3★, 10 taps=4★, 15+ taps=5★
+  /// Made more immediate for toddlers.
   int getStarRating(String moduleId, String itemId) {
     final taps = getTapCount(moduleId, itemId);
     if (taps == 0) return 0;
-    if (taps < 3) return 1;
-    if (taps < 6) return 2;
-    if (taps < 10) return 3;
-    if (taps < 15) return 4;
+    if (taps == 1) return 1;
+    if (taps == 2) return 2;
+    if (taps == 3) return 3;
+    if (taps == 4) return 4;
     return 5;
   }
 

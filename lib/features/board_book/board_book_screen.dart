@@ -64,10 +64,51 @@ class _BoardBookScreenState extends ConsumerState<BoardBookScreen> {
     super.dispose();
   }
 
+  void _showCelebration(String categoryName) {
+    late OverlayEntry overlayEntry;
+    overlayEntry = OverlayEntry(
+      builder: (context) => CategoryCelebrationOverlay(
+        categoryName: categoryName,
+        onDismiss: () {
+          overlayEntry.remove();
+        },
+      ),
+    );
+    Overlay.of(context).insert(overlayEntry);
+  }
+
   @override
   Widget build(BuildContext context) {
     final categoriesAsync = ref.watch(boardBookCategoriesProvider);
     final cardsPerPage = ref.watch(boardBookCardsPerPageProvider);
+    final progress = ref.watch(progressServiceProvider);
+
+    // Watch for progress updates to trigger celebrations
+    ref.listen(progressUpdateProvider, (previous, next) {
+      if (next == 0) return; // Initial state
+
+      categoriesAsync.whenData((categories) {
+        if (categories.isEmpty) return;
+
+        final moduleId = 'board_book';
+
+        // Check ALL categories for completion, not just the visible one.
+        // This is much safer in case of scroll offsets or index mismatches.
+        for (final category in categories) {
+          final itemIds = category.items.map((i) => i.id).toList();
+
+          if (progress.isCategoryComplete(moduleId, itemIds) && 
+              !progress.isCategoryCelebrated(moduleId, category.id)) {
+            
+            progress.markCategoryCelebrated(moduleId, category.id);
+            _showCelebration(category.name);
+            
+            // Only celebrate one category at a time if multiple finish simultaneously
+            break; 
+          }
+        }
+      });
+    });
 
     return Scaffold(
       body: Stack(

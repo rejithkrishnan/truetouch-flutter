@@ -530,7 +530,6 @@ class _ParentMenuPageState extends ConsumerState<_ParentMenuPage> {
             subtitle: 'Sound Match settings will appear here',
           ),
 
-          // ── Section: About ──────────────────────────────────
           const _SectionHeader(label: 'About'),
 
           const _SettingsTile(
@@ -546,10 +545,59 @@ class _ParentMenuPageState extends ConsumerState<_ParentMenuPage> {
             subtitle: '1.0.0',
           ),
 
-          const SizedBox(height: 40),
+          // ── Section: Data Management ─────────────────────
+          const _SectionHeader(label: 'Data Management'),
+
+          _SettingsTile(
+            icon: Icons.delete_forever_rounded,
+            iconColor: Colors.redAccent,
+            title: 'Reset All Progress',
+            subtitle: 'Clear all stars, points, and celebrations',
+            trailing: TextButton(
+              onPressed: () => _showResetConfirmation(context, ref),
+              child: const Text('RESET', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+            ),
+          ),
+
+          const SizedBox(height: 60),
         ],
       ),
     );
+  }
+
+  Future<void> _showResetConfirmation(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset All Progress?'),
+        content: const Text(
+          'This will permanently delete all your child\'s stars, exploration points, and category completion trophies.\n\nThis cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('CANCEL'),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('YES, RESET EVERYTHING'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await ref.read(progressServiceProvider).resetAll();
+      ref.invalidate(boardBookCategoriesProvider); // Refresh UI
+      if (mounted) setState(() {});
+      
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('All progress has been reset.')),
+        );
+      }
+    }
   }
 
   void _showCategoryDrawer(

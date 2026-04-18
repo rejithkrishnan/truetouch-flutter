@@ -188,13 +188,27 @@ class _ContentCardState extends ConsumerState<ContentCard> {
                                 style: Theme.of(context).textTheme.headlineMedium,
                               )
                               .animate()
+                              .fadeIn(delay: (entry.key * 140).ms)
                               .scale(
-                                delay: (entry.key * 80).ms,
-                                duration: 300.ms,
-                                curve: Curves.backOut,
-                                begin: const Offset(0.5, 0.5),
+                                delay: (entry.key * 140).ms,
+                                duration: 900.ms,
+                                curve: Curves.elasticOut,
+                                begin: const Offset(0.0, 0.0),
                               )
-                              .fadeIn(delay: (entry.key * 80).ms);
+                              .rotate(
+                                delay: (entry.key * 140).ms,
+                                duration: 600.ms,
+                                curve: Curves.elasticOut,
+                                begin: -0.1, // Slight tilt left
+                                end: 0,
+                              )
+                              .moveY(
+                                delay: (entry.key * 140).ms,
+                                duration: 600.ms,
+                                curve: Curves.easeOutBack,
+                                begin: 30,
+                                end: 0,
+                              );
                             }).toList(),
                           ),
                         ),
@@ -204,7 +218,10 @@ class _ContentCardState extends ConsumerState<ContentCard> {
                           Positioned(
                             top: 8,
                             right: 8,
-                            child: _StarRatingBadge(stars: _starRating),
+                            child: _StarRatingBadge(
+                              key: ValueKey('stars_${_starRating}_${_spellingKey}'),
+                              stars: _starRating,
+                            ),
                           ),
                       ],
                     ),
@@ -271,7 +288,7 @@ class _ContentCardState extends ConsumerState<ContentCard> {
 // ── Star rating badge: shows filled/empty stars in a dark pill ────────────────
 class _StarRatingBadge extends StatelessWidget {
   final int stars; // 1–5
-  const _StarRatingBadge({required this.stars});
+  const _StarRatingBadge({super.key, required this.stars});
 
   @override
   Widget build(BuildContext context) {
