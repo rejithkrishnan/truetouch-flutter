@@ -26,4 +26,4 @@ We may update this Privacy Policy from time to time. We will notify you of any c
 
 ## 5. Contact Us
 
-If you have any questions or concerns about this privacy policy, please contact us at: [YOUR EMAIL ADDRESS].
+If you have any questions or concerns about this privacy policy, please contact us at: rejith.uck@gmail.com.
