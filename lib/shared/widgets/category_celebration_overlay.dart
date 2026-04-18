@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:confetti/confetti.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/providers.dart';
 
-class CategoryCelebrationOverlay extends StatefulWidget {
+class CategoryCelebrationOverlay extends ConsumerStatefulWidget {
   final String categoryName;
   final VoidCallback onDismiss;
 
@@ -14,10 +16,10 @@ class CategoryCelebrationOverlay extends StatefulWidget {
   });
 
   @override
-  State<CategoryCelebrationOverlay> createState() => _CategoryCelebrationOverlayState();
+  ConsumerState<CategoryCelebrationOverlay> createState() => _CategoryCelebrationOverlayState();
 }
 
-class _CategoryCelebrationOverlayState extends State<CategoryCelebrationOverlay> {
+class _CategoryCelebrationOverlayState extends ConsumerState<CategoryCelebrationOverlay> {
   late ConfettiController _confettiController;
 
   @override
@@ -25,6 +27,11 @@ class _CategoryCelebrationOverlayState extends State<CategoryCelebrationOverlay>
     super.initState();
     _confettiController = ConfettiController(duration: const Duration(seconds: 3));
     _confettiController.play();
+
+    // Play the reward sound
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(audioServiceProvider).playSound('assets/audio/tropy.mp3');
+    });
   }
 
   @override
@@ -48,7 +55,7 @@ class _CategoryCelebrationOverlayState extends State<CategoryCelebrationOverlay>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // The Trophy Icon
-                  Container(
+                   Container(
                     padding: const EdgeInsets.all(40),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -73,7 +80,10 @@ class _CategoryCelebrationOverlayState extends State<CategoryCelebrationOverlay>
                     curve: Curves.elasticOut,
                     begin: const Offset(0, 0),
                   )
-                  .shimmer(delay: 800.ms, duration: 1.seconds),
+                  .then()
+                  .shimmer(duration: 2.seconds) // Looping shimmer
+                  .animate(onPlay: (controller) => controller.repeat(reverse: true))
+                  .scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1), duration: 1.seconds),
 
                   const SizedBox(height: 48),
 
@@ -94,7 +104,11 @@ class _CategoryCelebrationOverlayState extends State<CategoryCelebrationOverlay>
                   )
                   .animate()
                   .slideY(begin: 1.0, end: 0, delay: 300.ms, duration: 500.ms, curve: Curves.easeOutCubic)
-                  .fadeIn(delay: 300.ms),
+                  .fadeIn(delay: 300.ms)
+                  .then()
+                  .shimmer(duration: 2.seconds) // Looping shimmer on text
+                  .animate(onPlay: (controller) => controller.repeat(reverse: true))
+                  .scale(begin: const Offset(1, 1), end: const Offset(1.05, 1.05), duration: 1.5.seconds),
 
                   const SizedBox(height: 12),
 
@@ -106,7 +120,10 @@ class _CategoryCelebrationOverlayState extends State<CategoryCelebrationOverlay>
                     ),
                   )
                   .animate()
-                  .fadeIn(delay: 600.ms),
+                  .fadeIn(delay: 600.ms)
+                  .then()
+                  .animate(onPlay: (controller) => controller.repeat(reverse: true))
+                  .shake(hz: 1, rotation: 0.03), // Gentle wiggle
 
                   const SizedBox(height: 60),
 

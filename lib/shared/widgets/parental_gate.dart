@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../core/theme/app_theme.dart';
 
 class ParentalGate extends StatefulWidget {
@@ -22,6 +24,7 @@ class ParentalGate extends StatefulWidget {
 class _ParentalGateState extends State<ParentalGate> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   Offset? _tapPosition;
+  Timer? _vibrationTimer;
 
   @override
   void initState() {
@@ -33,8 +36,10 @@ class _ParentalGateState extends State<ParentalGate> with SingleTickerProviderSt
 
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
+        _stopVibrationLoop();
         _controller.reset();
         setState(() => _tapPosition = null);
+        HapticFeedback.mediumImpact();
         widget.onUnlocked();
       }
     });
@@ -46,8 +51,21 @@ class _ParentalGateState extends State<ParentalGate> with SingleTickerProviderSt
 
   @override
   void dispose() {
+    _stopVibrationLoop();
     _controller.dispose();
     super.dispose();
+  }
+
+  void _startVibrationLoop() {
+    _vibrationTimer?.cancel();
+    _vibrationTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      HapticFeedback.selectionClick();
+    });
+  }
+
+  void _stopVibrationLoop() {
+    _vibrationTimer?.cancel();
+    _vibrationTimer = null;
   }
 
   void _handlePointerDown(PointerDownEvent event) {
@@ -56,6 +74,7 @@ class _ParentalGateState extends State<ParentalGate> with SingleTickerProviderSt
     if (event.localPosition.dx > size.width - widget.hitboxSize &&
         event.localPosition.dy > size.height - widget.hitboxSize) {
       setState(() => _tapPosition = event.localPosition);
+      _startVibrationLoop();
       _controller.forward();
     }
   }
@@ -65,6 +84,7 @@ class _ParentalGateState extends State<ParentalGate> with SingleTickerProviderSt
   }
 
   void _cancelHold() {
+    _stopVibrationLoop();
     if (_controller.isAnimating) {
       _controller.reset();
       setState(() => _tapPosition = null);

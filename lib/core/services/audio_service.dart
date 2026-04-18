@@ -115,29 +115,50 @@ class AudioService {
         await _voicePlayer.setAsset(voicePath);
         await _voicePlayer.seek(Duration.zero);
         await _voicePlayer.play();
-        try { await _awaitPlayback(_voicePlayer); } catch (_) {}
+        try {
+          await _awaitPlayback(_voicePlayer);
+        } catch (_) {}
 
-        await Future.delayed(const Duration(milliseconds: 1000));
+        await Future.delayed(const Duration(milliseconds: 0));
 
         // Voice #2
         await _voicePlayer.seek(Duration.zero);
         await _voicePlayer.play();
-        try { await _awaitPlayback(_voicePlayer); } catch (_) {}
+        try {
+          await _awaitPlayback(_voicePlayer);
+        } catch (_) {}
       }
 
-      final delayMs = (soundDelay * 1000).toInt() + 800;
+      final delayMs = (soundDelay * 1000).toInt() + 0;
       await Future.delayed(Duration(milliseconds: delayMs));
 
       if (soundPath != null && soundPath.isNotEmpty) {
         await _soundPlayer.setAsset(soundPath);
         await _soundPlayer.seek(Duration.zero);
         await _soundPlayer.play();
-        try { await _awaitPlayback(_soundPlayer); } catch (_) {}
+        try {
+          await _awaitPlayback(_soundPlayer);
+        } catch (_) {}
       }
     } catch (_) {
       // Swallow to guarantee lock always releases
     } finally {
       _isCardSequencePlaying = false;
+    }
+  }
+
+  /// Plays a one-off sound effect (e.g. trophy, button click).
+  Future<void> playSound(String assetPath) async {
+    if (!_settings.isSoundEnabled) return;
+    try {
+      final vol = _settings.voiceVolume;
+      // Use sound player for one-offs
+      await _soundPlayer.setVolume(vol);
+      await _soundPlayer.setAsset(assetPath);
+      await _soundPlayer.seek(Duration.zero);
+      await _soundPlayer.play();
+    } catch (_) {
+      // Ignore errors
     }
   }
 
@@ -173,11 +194,11 @@ class AudioService {
   }
 
   Future<void> _awaitPlayback(AudioPlayer player) async {
-    await player.playerStateStream.firstWhere(
-      (s) => s.processingState == ProcessingState.completed,
-    ).timeout(
-      const Duration(seconds: 8),
-      onTimeout: () => throw TimeoutException('Audio timeout'),
-    );
+    await player.playerStateStream
+        .firstWhere((s) => s.processingState == ProcessingState.completed)
+        .timeout(
+          const Duration(seconds: 8),
+          onTimeout: () => throw TimeoutException('Audio timeout'),
+        );
   }
 }

@@ -71,7 +71,7 @@ class _ContentCardState extends ConsumerState<ContentCard> {
     final audioService = ref.read(audioServiceProvider);
     if (audioService.isInteractionLocked) return;
 
-    ref.read(hapticServiceProvider).lightImpact();
+    ref.read(hapticServiceProvider).heavyImpact();
     _confettiController.play();
 
     // Record progress and update star rating
@@ -184,31 +184,42 @@ class _ContentCardState extends ConsumerState<ContentCard> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: widget.item.name.characters.toList().asMap().entries.map((entry) {
                               return Text(
-                                entry.value,
-                                style: Theme.of(context).textTheme.headlineMedium,
-                              )
-                              .animate()
-                              .fadeIn(delay: (entry.key * 140).ms)
-                              .scale(
-                                delay: (entry.key * 140).ms,
-                                duration: 900.ms,
-                                curve: Curves.elasticOut,
-                                begin: const Offset(0.0, 0.0),
-                              )
-                              .rotate(
-                                delay: (entry.key * 140).ms,
-                                duration: 600.ms,
-                                curve: Curves.elasticOut,
-                                begin: -0.1, // Slight tilt left
-                                end: 0,
-                              )
-                              .moveY(
-                                delay: (entry.key * 140).ms,
-                                duration: 600.ms,
-                                curve: Curves.easeOutBack,
-                                begin: 30,
-                                end: 0,
-                              );
+                                  entry.value,
+                                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                    color: const Color(0xFFFFCC4D), // Golden Sunbeam
+                                    shadows: [
+                                      const Shadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 4),
+                                    ],
+                                  ),
+                                )
+                                .animate()
+                                .fadeIn(delay: (entry.key * 140).ms)
+                                .scale(
+                                  delay: (entry.key * 140).ms,
+                                  duration: 900.ms,
+                                  curve: Curves.elasticOut,
+                                  begin: const Offset(0.0, 0.0),
+                                  end: const Offset(1.0, 1.0),
+                                )
+                                .rotate(
+                                  delay: (entry.key * 140).ms,
+                                  duration: 600.ms,
+                                  curve: Curves.elasticOut,
+                                  begin: -0.1,
+                                  end: 0,
+                                )
+                                .moveY(
+                                  delay: (entry.key * 140).ms,
+                                  duration: 600.ms,
+                                  curve: Curves.easeOutBack,
+                                  begin: 30,
+                                  end: 0,
+                                )
+                                .shimmer(
+                                  delay: (entry.key * 140 + 600).ms,
+                                  duration: 1200.ms,
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                );
                             }).toList(),
                           ),
                         ),
