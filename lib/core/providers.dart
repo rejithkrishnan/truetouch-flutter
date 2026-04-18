@@ -62,3 +62,7 @@ final modulesProvider = FutureProvider<List<Module>>((ref) async {
   final repo = ref.watch(moduleRepositoryProvider);
   return repo.loadModules();
 });
+
+/// A simple counter that increments whenever progress is recorded.
+/// Used to trigger UI checks (like category completion celebrations).
+final progressUpdateProvider = StateProvider<int>((ref) => 0);

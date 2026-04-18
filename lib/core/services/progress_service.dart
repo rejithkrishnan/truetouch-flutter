@@ -49,6 +49,25 @@ class ProgressService {
     await _prefs.setInt(key, (_prefs.getInt(key) ?? 0) + 1);
   }
 
+  // ── Celebration Tracking ──────────────────────────────────────────────────
+
+  static const String _celebrationPrefix = 'celebrated_';
+
+  String _celebrationKey(String moduleId, String categoryId) =>
+      '$_celebrationPrefix${moduleId}_$categoryId';
+
+  bool isCategoryCelebrated(String moduleId, String categoryId) =>
+      _prefs.getBool(_celebrationKey(moduleId, categoryId)) ?? false;
+
+  Future<void> markCategoryCelebrated(String moduleId, String categoryId) async {
+    await _prefs.setBool(_celebrationKey(moduleId, categoryId), true);
+  }
+
+  bool isCategoryComplete(String moduleId, List<String> itemIds) {
+    if (itemIds.isEmpty) return false;
+    return itemIds.every((id) => isDiscovered(moduleId, id));
+  }
+
   // ── Total / Module ────────────────────────────────────────────────────────
 
   int discoveredCount(String moduleId, List<String> allItemIds) =>
@@ -84,7 +103,7 @@ class ProgressService {
   }
 
   Future<void> resetAll() async {
-    final keys = _prefs.getKeys().where((k) => k.startsWith(_prefix)).toList();
+    final keys = _prefs.getKeys().where((k) => k.startsWith(_prefix) || k.startsWith(_celebrationPrefix)).toList();
     for (final k in keys) {
       await _prefs.remove(k);
     }

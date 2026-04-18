@@ -11,6 +11,8 @@ import '../../../data/models/content_item.dart';
 import 'providers/board_book_providers.dart';
 import 'widgets/content_card.dart';
 import '../../../shared/widgets/animated_title.dart';
+import '../../../shared/widgets/category_celebration_overlay.dart';
+import '../../../core/services/progress_service.dart';
 
 class _PageData {
   final Category category;

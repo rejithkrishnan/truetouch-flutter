@@ -33,6 +33,7 @@ class _ContentCardState extends ConsumerState<ContentCard> {
   bool _isPlayingVideo = false;
   int _starRating = 0; // 0 = not yet tapped, 1-5 based on tap count
   Offset? _tapPosition;
+  int _spellingKey = 0; // Increment to re-run character animations
 
   @override
   void initState() {
@@ -76,8 +77,13 @@ class _ContentCardState extends ConsumerState<ContentCard> {
     // Record progress and update star rating
     final progress = ref.read(progressServiceProvider);
     await progress.recordTap(widget.moduleId, widget.item.id);
+    
+    // Signal progress update to listeners (like BoardBookScreen for celebrations)
+    ref.read(progressUpdateProvider.notifier).state++;
+
     setState(() {
       _starRating = progress.getStarRating(widget.moduleId, widget.item.id);
+      _spellingKey++; // Trigger label animation
     });
 
     if (_videoController != null && _videoController!.value.isInitialized) {
@@ -168,15 +174,28 @@ class _ContentCardState extends ConsumerState<ContentCard> {
                             ),
                           ),
 
-                        // Label at bottom
+                        // Label at bottom - Animated Spelling
                         Positioned(
                           bottom: 16,
                           left: 0,
                           right: 0,
-                          child: Text(
-                            widget.item.name,
-                            style: Theme.of(context).textTheme.headlineMedium,
-                            textAlign: TextAlign.center,
+                          child: Row(
+                            key: ValueKey('spelling_$_spellingKey'),
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: widget.item.name.characters.toList().asMap().entries.map((entry) {
+                              return Text(
+                                entry.value,
+                                style: Theme.of(context).textTheme.headlineMedium,
+                              )
+                              .animate()
+                              .scale(
+                                delay: (entry.key * 80).ms,
+                                duration: 300.ms,
+                                curve: Curves.backOut,
+                                begin: const Offset(0.5, 0.5),
+                              )
+                              .fadeIn(delay: (entry.key * 80).ms);
+                            }).toList(),
                           ),
                         ),
 
