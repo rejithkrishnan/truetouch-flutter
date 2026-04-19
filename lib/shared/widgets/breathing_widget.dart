@@ -4,37 +4,49 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 /// Wraps any child widget in a subtle, randomized idle animation
 /// consisting of scale (breathing) and rotation (sway).
-class BreathingWidget extends StatelessWidget {
+class BreathingWidget extends StatefulWidget {
   final Widget child;
 
   const BreathingWidget({super.key, required this.child});
 
   @override
-  Widget build(BuildContext context) {
-    // Generate randomized values at build time so each instance looks organic.
+  State<BreathingWidget> createState() => _BreathingWidgetState();
+}
+
+class _BreathingWidgetState extends State<BreathingWidget> {
+  late Duration _duration;
+  late double _maxScale;
+  late double _tilt;
+
+  @override
+  void initState() {
+    super.initState();
     final rand = Random();
     
     // Duration between 3.0s and 5.0s for a very slow, calm breathe
-    final duration = (3000 + rand.nextInt(2000)).ms; 
+    _duration = (3000 + rand.nextInt(2000)).ms; 
     
     // Max scale between 1.005 and 1.015 (extremely subtle)
-    final maxScale = 1.005 + rand.nextDouble() * 0.01; 
+    _maxScale = 1.005 + rand.nextDouble() * 0.01; 
     
     // Tilt between -0.01 rad and +0.01 rad
-    final tilt = (rand.nextDouble() - 0.5) * 0.02; 
+    _tilt = (rand.nextDouble() - 0.5) * 0.02; 
+  }
 
-    return child.animate(onPlay: (controller) => controller.repeat(reverse: true))
+  @override
+  Widget build(BuildContext context) {
+    return widget.child.animate(onPlay: (controller) => controller.repeat(reverse: true))
       .scale(
-        duration: duration,
+        duration: _duration,
         curve: Curves.easeInOutSine,
         begin: const Offset(1.0, 1.0),
-        end: Offset(maxScale, maxScale),
+        end: Offset(_maxScale, _maxScale),
       )
       .rotate(
-        duration: duration,
+        duration: _duration,
         curve: Curves.easeInOutSine,
-        begin: -tilt,
-        end: tilt,
+        begin: -_tilt,
+        end: _tilt,
       );
   }
 }

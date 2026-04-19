@@ -64,11 +64,13 @@ class _BoardBookScreenState extends ConsumerState<BoardBookScreen> {
     super.dispose();
   }
 
-  void _showCelebration(String categoryName) {
+  void _showCelebration(String categoryName, Color trophyColor) {
     late OverlayEntry overlayEntry;
     overlayEntry = OverlayEntry(
       builder: (context) => CategoryCelebrationOverlay(
-        categoryName: categoryName,
+        mainText: 'Great Job!',
+        subText: 'You finished $categoryName!',
+        trophyColor: trophyColor,
         onDismiss: () {
           overlayEntry.remove();
         },
@@ -101,7 +103,10 @@ class _BoardBookScreenState extends ConsumerState<BoardBookScreen> {
               !progress.isCategoryCelebrated(moduleId, category.id)) {
             
             progress.markCategoryCelebrated(moduleId, category.id);
-            _showCelebration(category.name);
+            // Use a color from the palette based on category index
+            final categoryIndex = categories.indexOf(category);
+            final color = AppColors.nurseryPalette[categoryIndex % AppColors.nurseryPalette.length];
+            _showCelebration(category.name, color);
             
             // Only celebrate one category at a time if multiple finish simultaneously
             break; 

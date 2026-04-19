@@ -84,11 +84,38 @@ All interactive items (Content Cards, Activity Cards, Game Tiles) must adhere to
 -   **Background**: `Colors.white.withValues(alpha: 0.15)` (Glassmorphism).
 -   **Border**: `1px` white border at `0.2` alpha.
 -   **Rounding**: `radius: 24px`.
--   **Standard Shadow**: 
-    - `offset: Offset(0, 8)`
-    - `blurRadius: 12`
-    - `alpha: 0.15` (Black)
--   **Interactive Bounce**: Scale from `1.0` -> `0.9` -> `1.0` over 600ms total.
+## 🍭 Sensory Reward System
+
+-   **Confetti Sprays**: Used exclusively for success states and interactive "Showers."
+-   **Hold-to-Shower**: Confetti now supports sustained interaction. Holding a card "showering" the screen, while a quick tap provides a guaranteed **250ms burst**.
+-   **Visual Response Priority**: Confetti triggers MUST happen on `onTapDown` and are **un-gated** by audio sequences. This ensures the child always feels the app is responsive, even if they tap while a word is being spoken.
+-   **No More Bounce**: The 0.9 scale "button press" has been removed to maintain the "Glass Sheet" aesthetic and reduce visual clutter during rapid interactions.
+
+## 🔡 Typography (100% Offline)
+
+-   **Primary Font**: **Quicksand** (Google Fonts family).
+-   **Bundled Strategy**: All font weights (Regular, Medium, Bold) are bundled locally in `assets/fonts/` and registered in `pubspec.yaml`.
+-   **No Network Dependency**: The app theme uses native `fontFamily` registration. This ensures the sensory look is preserved in airplane mode and prevents "fallback font flickering."
+
+## 🎬 Animation Atoms & Persistence
+
+-   **Idle Animations**: Breathing, Swaying, and Floating must be implemented using `StatefulWidgets`.
+-   **State Locking**: Randomized parameters (duration, scale, variance) must be locked in `initState`. This prevents visual "jumps" when a parent widget rebuilds (e.g., during a tap).
+-   **Persistent Drifting**: All labels use `PremiumAnimatedText` with `hasDrift: true` for organic, asynchronous movement.
+-   **Dynamic Achievement Colors**: Trophies and success overlays use themed colors:
+    -   **Individual Mastery**: Trophy color matches the mastered card's nursery background.
+    -   **Category Completion**: Trophies cycle through the nursery palette based on category index.
+    -   **Sound Match**: Uses `Soft Mint` for victory states to reinforce success.
+
+## 🛠️ Engineering & Production
+
+-   **Splash Immersive**: Assets must use "Safe Margin" designs to accommodate diverse screen aspect ratios without cropping text.
+-   **Android Manifest**: `INTERNET` permission is granted to ensure plugin stability in release builds.
+-   **Kotlin Stack**: Project uses Kotlin DSL (`.kts`) and targeting Java 17 for modern standard compatibility.
+
+---
+
+*Updated: April 18, 2026 - Sensory Unification & Offline Reliability Pass.*
 
 ---
 

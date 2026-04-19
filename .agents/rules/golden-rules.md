@@ -26,12 +26,15 @@ All code and UI changes must adhere to the following design philosophy to mainta
   - Looping Bobbing (`AnimationType.bobbing`) for titles.
   - **Dancing Drift**: Combine `AnimationType.bobbing` and `hasDrift: true` for interactive cards to create an organic, rhythmic wave.
   - Golden Sunbeam shimmer effects.
+- **Animation Persistence**: All idle animations (Breathing, Drifting, Swaying) MUST be implemented using `StatefulWidgets`.
+  - Random values (duration, scale, tilt) must be locked in `initState`.
+  - Animations must remain seamless and uninterrupted during parent rebuilds (e.g., when a card is tapped).
 
 ## 💎 3. Premium Simplicity (Glassmorphism)
 - **Glass Containers**: Use translucent white containers (`alpha: 0.1` to `0.15`) with subtle borders for high-end organization.
 - **The Card DNA**: All interactive cards MUST share the same tactical feedback:
   - **Visual**: `borderRadius: 24`, `alpha: 0.15` (Glass), and a standard shadow (`offset: Offset(0, 8)`, `blurRadius: 12`, `alpha: 0.15`).
-  - **Interactive**: 300ms **0.9 Scale Bounce** animation on tap (scale down then spring back).
+  - **Responsive Rewards**: Visual rewards (confetti, particle effects) MUST trigger immediately on tap, even if audio is currently locked, to ensure the child feels acknowledged.
 - **Typography**: Exclusively use the **Quicksand** font family. Keep labels clean and avoid cluttered interfaces.
 
 ## 🔊 4. Audio Sequencing & Sensory Association

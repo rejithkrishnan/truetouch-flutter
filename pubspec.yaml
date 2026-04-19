@@ -63,6 +63,16 @@ flutter:
     - assets/modules/sound_match/audio/voice/
     - assets/modules/sound_match/audio/sounds/
 
+  fonts:
+    - family: Quicksand
+      fonts:
+        - asset: assets/fonts/Quicksand-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Quicksand-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Quicksand-Bold.ttf
+          weight: 700
+
 flutter_launcher_icons:
   android: true
   ios: true

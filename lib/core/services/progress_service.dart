@@ -63,6 +63,16 @@ class ProgressService {
     await _prefs.setBool(_celebrationKey(moduleId, categoryId), true);
   }
 
+  String _itemCelebrationKey(String moduleId, String itemId) =>
+      '${_celebrationPrefix}item_${moduleId}_$itemId';
+
+  bool isItemCelebrated(String moduleId, String itemId) =>
+      _prefs.getBool(_itemCelebrationKey(moduleId, itemId)) ?? false;
+
+  Future<void> markItemCelebrated(String moduleId, String itemId) async {
+    await _prefs.setBool(_itemCelebrationKey(moduleId, itemId), true);
+  }
+
   bool isCategoryComplete(String moduleId, List<String> itemIds) {
     if (itemIds.isEmpty) return false;
     return itemIds.every((id) => isDiscovered(moduleId, id));

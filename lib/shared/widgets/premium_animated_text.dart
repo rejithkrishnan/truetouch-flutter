@@ -7,7 +7,7 @@ enum AnimationType {
   none
 }
 
-class PremiumAnimatedText extends StatelessWidget {
+class PremiumAnimatedText extends StatefulWidget {
   final String text;
   final TextStyle? style;
   final TextAlign textAlign;
@@ -19,6 +19,8 @@ class PremiumAnimatedText extends StatelessWidget {
   final double bobAmount;
   final double driftAmount;
   final bool hasDrift;
+  /// Optional trigger value to re-run entrance/pop animations without resetting the drift movement.
+  final int? trigger;
 
   const PremiumAnimatedText({
     super.key,
@@ -33,37 +35,46 @@ class PremiumAnimatedText extends StatelessWidget {
     this.shimmerDelay,
     this.bobAmount = 7.0,
     this.driftAmount = 20.0,
+    this.trigger,
   });
 
   @override
+  State<PremiumAnimatedText> createState() => _PremiumAnimatedTextState();
+}
+
+class _PremiumAnimatedTextState extends State<PremiumAnimatedText> {
+  @override
   Widget build(BuildContext context) {
-    if (!animateCharacters) {
-      return _buildCharacter(text, 0, context);
+    if (!widget.animateCharacters) {
+      return _buildCharacter(widget.text, 0, context);
     }
 
-    final letters = text.characters.toList();
+    final letters = widget.text.characters.toList();
     Widget row = Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(letters.length, (i) {
         if (letters[i] == ' ') return const SizedBox(width: 8);
-        return _buildCharacter(letters[i], i, context);
+        return KeyedSubtree(
+          key: ValueKey('char_${i}_${widget.trigger}'),
+          child: _buildCharacter(letters[i], i, context),
+        );
       }),
     );
 
     // Apply Row-level loop if drifting is enabled or requested
-    if (hasDrift || animationType == AnimationType.drifting) {
+    if (widget.hasDrift || widget.animationType == AnimationType.drifting) {
       row = row
           .animate(onPlay: (c) => c.repeat(reverse: true))
           .moveX(
-            begin: -driftAmount,
-            end: driftAmount,
+            begin: -widget.driftAmount,
+            end: widget.driftAmount,
             duration: 4000.ms,
             curve: Curves.easeInOutSine,
           )
           .moveY(
-            begin: driftAmount,
-            end: -driftAmount,
+            begin: widget.driftAmount,
+            end: -widget.driftAmount,
             duration: 5200.ms,
             curve: Curves.easeInOutSine,
           );
@@ -74,15 +85,14 @@ class PremiumAnimatedText extends StatelessWidget {
 
   Widget _buildCharacter(String char, int index, BuildContext context) {
     // 1. Static Text
-    Widget character = Text(char, style: style, textAlign: textAlign);
+    Widget character = Text(char, style: widget.style, textAlign: widget.textAlign);
 
     // 2. Initial ENTRANCE Animation (Fade + Scale)
-    // This happens once when the widget is built
     character = character.animate().fadeIn(
-          delay: (index * staggerDelay.inMilliseconds).ms,
+          delay: (index * widget.staggerDelay.inMilliseconds).ms,
           duration: 600.ms,
         ).scale(
-          delay: (index * staggerDelay.inMilliseconds).ms,
+          delay: (index * widget.staggerDelay.inMilliseconds).ms,
           duration: 900.ms,
           curve: Curves.elasticOut,
           begin: const Offset(0.5, 0.5),
@@ -90,25 +100,25 @@ class PremiumAnimatedText extends StatelessWidget {
         );
 
     // 3. Continuous LOOP Animation (Character level)
-    if (animationType == AnimationType.bobbing) {
+    if (widget.animationType == AnimationType.bobbing) {
       character = character
           .animate(onPlay: (c) => c.repeat(reverse: true))
           .moveY(
             begin: 0,
-            end: -bobAmount,
+            end: -widget.bobAmount,
             duration: 1200.ms,
-            delay: (index * staggerDelay.inMilliseconds).ms,
+            delay: (index * widget.staggerDelay.inMilliseconds).ms,
             curve: Curves.easeInOut,
           );
     }
 
     // 4. Shimmer Overlay (Continuous)
-    if (hasShimmer) {
+    if (widget.hasShimmer) {
       character = character
           .animate(onPlay: (c) => c.repeat())
           .shimmer(
             duration: 2600.ms,
-            delay: (shimmerDelay ?? (index * staggerDelay.inMilliseconds).ms),
+            delay: (widget.shimmerDelay ?? (index * widget.staggerDelay.inMilliseconds).ms),
             color: Colors.white.withValues(alpha: 0.5),
           );
     }

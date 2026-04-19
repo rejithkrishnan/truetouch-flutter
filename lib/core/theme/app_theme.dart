@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// Warm nursery colour palette matching the Godot design.
 abstract final class AppColors {
@@ -58,23 +57,23 @@ BoxDecoration get cardDecoration => BoxDecoration(
 abstract final class AppTheme {
   static ThemeData get light => ThemeData(
     useMaterial3: true,
+    fontFamily: 'Quicksand',
     colorScheme: ColorScheme.fromSeed(
       seedColor: AppColors.splash,
       brightness: Brightness.light,
     ),
     scaffoldBackgroundColor: AppColors.pageBg,
-    textTheme: GoogleFonts.quicksandTextTheme(_buildTextTheme()),
+    textTheme: _buildTextTheme(),
   );
 
   static TextTheme _buildTextTheme() {
-    final base = GoogleFonts.quicksand();
-    return TextTheme(
+    return const TextTheme(
       // App title "True Touch"
-      displayLarge: base.copyWith(
+      displayLarge: TextStyle(
         fontSize: 64,
         fontWeight: FontWeight.w900,
         color: AppColors.titleText,
-        shadows: const [
+        shadows: [
           Shadow(
             offset: Offset(3, 3),
             blurRadius: 5,
@@ -83,28 +82,28 @@ abstract final class AppTheme {
         ],
       ),
       // Subtitle "Safe Learning Playroom"
-      titleLarge: base.copyWith(
+      titleLarge: TextStyle(
         fontSize: 24,
         fontWeight: FontWeight.w600,
         color: AppColors.subtitleText,
       ),
       // Card label (e.g. "Dog", "Cat")
-      headlineMedium: base.copyWith(
-        fontSize: 48,
+      headlineMedium: TextStyle(
+        fontSize: 54,
         fontWeight: FontWeight.w800,
         color: AppColors.cardWhite,
-        shadows: const [
+        shadows: [
           Shadow(offset: Offset(2, 2), blurRadius: 4, color: Color(0x40000000)),
         ],
       ),
       // Module name on activity card
-      bodyLarge: base.copyWith(
+      bodyLarge: TextStyle(
         fontSize: 22,
         fontWeight: FontWeight.w700,
         color: AppColors.titleText,
       ),
       // Parent menu buttons, labels
-      bodyMedium: base.copyWith(
+      bodyMedium: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.w500,
         color: AppColors.titleText,

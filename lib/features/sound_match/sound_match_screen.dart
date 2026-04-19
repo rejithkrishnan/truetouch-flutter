@@ -121,7 +121,9 @@ class SoundMatchScreen extends ConsumerWidget {
                   // Celebration Overlay
                   if (state.showCelebration)
                     CategoryCelebrationOverlay(
-                      categoryName: 'Match',
+                      mainText: 'Great Job!',
+                      subText: 'You found the match!',
+                      trophyColor: AppColors.softMint,
                       onDismiss: () => ref.read(soundMatchProvider.notifier).loadLevel(),
                     ),
                 ],

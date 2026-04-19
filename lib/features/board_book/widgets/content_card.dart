@@ -9,6 +9,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../data/models/content_item.dart';
 import '../../../shared/widgets/breathing_widget.dart';
 import '../../../shared/widgets/premium_animated_text.dart';
+import '../../../shared/widgets/category_celebration_overlay.dart';
 
 class ContentCard extends ConsumerStatefulWidget {
   final ContentItem item;
@@ -34,12 +35,13 @@ class _ContentCardState extends ConsumerState<ContentCard> {
   int _starRating = 0; // 0 = not yet tapped, 1-5 based on tap count
   Offset? _tapPosition;
   int _spellingKey = 0; // Increment to re-run character animations
+  bool _isPressing = false;
 
   @override
   void initState() {
     super.initState();
     _confettiController = ConfettiController(
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(seconds: 15), // Long duration to allow hold
     );
 
     // Load initial discovered state
@@ -72,7 +74,7 @@ class _ContentCardState extends ConsumerState<ContentCard> {
     if (audioService.isInteractionLocked) return;
 
     ref.read(hapticServiceProvider).heavyImpact();
-    _confettiController.play();
+    // Confetti play handled by onTapDown for sustain
 
     // Record progress and update star rating
     final progress = ref.read(progressServiceProvider);
@@ -99,6 +101,29 @@ class _ContentCardState extends ConsumerState<ContentCard> {
       soundPath: widget.item.soundPath,
       soundDelay: widget.item.soundDelay,
     );
+
+    // 🏆 Milestone: Reach 5 stars for the first time
+    if (_starRating == 5 && !progress.isItemCelebrated(widget.moduleId, widget.item.id)) {
+      await progress.markItemCelebrated(widget.moduleId, widget.item.id);
+      if (mounted) {
+        _showMasteryCelebration();
+      }
+    }
+  }
+
+  void _showMasteryCelebration() {
+    late OverlayEntry overlayEntry;
+    overlayEntry = OverlayEntry(
+      builder: (context) => CategoryCelebrationOverlay(
+        mainText: 'Mastered!',
+        subText: 'You mastered the ${widget.item.name}!',
+        trophyColor: widget.backgroundColor,
+        onDismiss: () {
+          overlayEntry.remove();
+        },
+      ),
+    );
+    Overlay.of(context).insert(overlayEntry);
   }
 
   void _videoListener() {
@@ -119,12 +144,30 @@ class _ContentCardState extends ConsumerState<ContentCard> {
         BreathingWidget(
           child: GestureDetector(
                 onTapDown: (details) {
-                  if (ref.read(audioServiceProvider).isInteractionLocked) {
-                    return;
+                  final audioService = ref.read(audioServiceProvider);
+                  
+                  // Both visual (confetti) and logic (audio) are now gated by the lock
+                  if (!audioService.isInteractionLocked) {
+                    setState(() {
+                      _tapPosition = details.localPosition;
+                      _isPressing = true;
+                    });
+                    _confettiController.play();
+                    _handleTap();
                   }
-                  setState(() => _tapPosition = details.localPosition);
                 },
-                onTap: _handleTap,
+                onTapUp: (_) async {
+                  setState(() => _isPressing = false);
+                  // Wait a tiny bit so quick taps still show some confetti
+                  await Future.delayed(const Duration(milliseconds: 250));
+                  if (!_isPressing) {
+                    _confettiController.stop();
+                  }
+                },
+                onTapCancel: () {
+                  setState(() => _isPressing = false);
+                  _confettiController.stop();
+                },
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.15), // Glassmorphism
@@ -187,8 +230,8 @@ class _ContentCardState extends ConsumerState<ContentCard> {
                           height: MediaQuery.of(context).size.height * 0.1,
                           child: Center(
                             child: PremiumAnimatedText(
-                              key: ValueKey('spelling_$_spellingKey'),
                               text: widget.item.name,
+                              trigger: _spellingKey,
                               style: Theme.of(
                                 context,
                               ).textTheme.headlineMedium?.copyWith(
@@ -228,48 +271,16 @@ class _ContentCardState extends ConsumerState<ContentCard> {
                     ),
                   ),
                 ),
-              )
-              .animate(
-                target:
-                    _confettiController.state == ConfettiControllerState.playing
-                        ? 1
-                        : 0,
-              )
-              .scale(
-                duration: 300.ms,
-                curve: Curves.easeIn,
-                end: const Offset(0.9, 0.9),
-              )
-              .then()
-              .scale(
-                duration: 300.ms,
-                curve: Curves.easeOut,
-                end: const Offset(1 / 0.9, 1 / 0.9),
-              ), // bounce back
+              ),
         ),
 
-        // Confetti above the card
-        if (_tapPosition != null)
-          Positioned(
-            left: _tapPosition!.dx,
-            top: _tapPosition!.dy,
-            width: 1,
-            height: 1,
-            child: ConfettiWidget(
-              confettiController: _confettiController,
-              blastDirectionality: BlastDirectionality.explosive,
-              emissionFrequency: 0.1,
-              numberOfParticles: 40,
-              maxBlastForce: 15,
-              minBlastForce: 5,
-              gravity: 0.05,
-              minimumSize: const Size(6, 6),
-              maximumSize: const Size(12, 12),
-              colors: AppColors.nurseryPalette,
-            ),
-          )
-        else
-          ConfettiWidget(
+        // Confetti above the card at tap location
+        Positioned(
+          left: _tapPosition?.dx ?? MediaQuery.of(context).size.width / 2,
+          top: _tapPosition?.dy ?? MediaQuery.of(context).size.height / 2,
+          width: 1,
+          height: 1,
+          child: ConfettiWidget(
             confettiController: _confettiController,
             blastDirectionality: BlastDirectionality.explosive,
             emissionFrequency: 0.1,
@@ -281,6 +292,7 @@ class _ContentCardState extends ConsumerState<ContentCard> {
             maximumSize: const Size(12, 12),
             colors: AppColors.nurseryPalette,
           ),
+        ),
       ],
     );
   }

@@ -6,13 +6,19 @@ import '../../core/theme/app_theme.dart';
 import '../../core/providers.dart';
 
 class CategoryCelebrationOverlay extends ConsumerStatefulWidget {
-  final String categoryName;
+  final String mainText;
+  final String subText;
   final VoidCallback onDismiss;
+  final Color trophyColor;
+  final Color trophyBgColor;
 
   const CategoryCelebrationOverlay({
     super.key,
-    required this.categoryName,
+    required this.mainText,
+    required this.subText,
     required this.onDismiss,
+    this.trophyColor = Colors.amber,
+    this.trophyBgColor = Colors.white,
   });
 
   @override
@@ -58,20 +64,20 @@ class _CategoryCelebrationOverlayState extends ConsumerState<CategoryCelebration
                    Container(
                     padding: const EdgeInsets.all(40),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: widget.trophyBgColor,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.amber.withValues(alpha: 0.5),
+                          color: widget.trophyColor.withValues(alpha: 0.5),
                           blurRadius: 40,
                           spreadRadius: 10,
                         ),
                       ],
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.emoji_events_rounded,
                       size: 150,
-                      color: Colors.amber,
+                      color: widget.trophyColor,
                     ),
                   )
                   .animate()
@@ -89,7 +95,7 @@ class _CategoryCelebrationOverlayState extends ConsumerState<CategoryCelebration
 
                   // Celebration Text
                   Text(
-                    'Great Job!',
+                    widget.mainText,
                     style: Theme.of(context).textTheme.displayLarge?.copyWith(
                       color: Colors.white,
                       fontSize: 64,
@@ -113,7 +119,7 @@ class _CategoryCelebrationOverlayState extends ConsumerState<CategoryCelebration
                   const SizedBox(height: 12),
 
                   Text(
-                    'You finished ${widget.categoryName}!',
+                    widget.subText,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       color: Colors.white.withValues(alpha: 0.9),
