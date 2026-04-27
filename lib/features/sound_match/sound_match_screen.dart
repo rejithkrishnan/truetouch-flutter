@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../../core/providers.dart';
 import '../../shared/widgets/animated_background.dart';
 import '../../shared/widgets/premium_animated_text.dart';
 import '../../shared/widgets/category_celebration_overlay.dart';
 import 'providers/sound_match_provider.dart';
+import 'models/sound_match_state.dart';
 import 'widgets/sound_match_card.dart';
 
 class SoundMatchScreen extends ConsumerWidget {
@@ -61,60 +63,72 @@ class SoundMatchScreen extends ConsumerWidget {
                       
                       const Spacer(),
 
-                      // Central "Ear" Prompt Button
+                      // Central Sound Prompt Button
                       Center(
-                        child: GestureDetector(
-                          onTap: () => ref.read(soundMatchProvider.notifier).playPrompt(),
-                          child: Container(
-                            width: 120,
-                            height: 120,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white38, width: 2),
-                            ),
-                            child: const Icon(
-                              Icons.hearing_rounded,
-                              size: 70,
-                              color: AppColors.titleText,
-                            ),
-                          ),
+                        child: _PromptButton(
+                          onTap: () {
+                            ref.read(hapticServiceProvider).heavyImpact();
+                            ref.read(soundMatchProvider.notifier).playPrompt();
+                          },
                         ),
                       ),
 
                       const SizedBox(height: 48),
 
-                      // 2x2 Grid of Matching Items
+                      // Card Grid — adapts to difficulty
                       Expanded(
                         flex: 6,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24.0),
                           child: GridView.builder(
                             physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 2,
                               crossAxisSpacing: 20,
                               mainAxisSpacing: 20,
-                              childAspectRatio: 0.9,
+                              childAspectRatio:
+                                  state.difficulty == SoundMatchDifficulty.beginner
+                                      ? 1.05
+                                      : 0.9,
                             ),
-                            itemCount: 4,
+                            itemCount: state.difficulty.cardCount,
                             itemBuilder: (context, index) {
                               final item = state.choices[index];
                               final isSelected = state.selectedIndex == index;
-                              
+
                               return SoundMatchCard(
                                 key: ValueKey(item.id),
                                 item: item,
                                 isSelected: isSelected,
                                 isCorrect: state.isCorrect && isSelected,
-                                onTap: () => ref.read(soundMatchProvider.notifier).checkSelection(index),
+                                isWrongHistory: state.wrongIndices.contains(index),
+                                onTap: () => ref
+                                    .read(soundMatchProvider.notifier)
+                                    .checkSelection(index),
                               );
                             },
                           ),
                         ),
                       ),
-                      
+                      // Category label
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10.0),
+                        child: PremiumAnimatedText(
+                          text: state.isRandomMode
+                              ? '✨ Random Category'
+                              : state.activeCategoryName ?? 'All Categories',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.titleText,
+                            letterSpacing: 0.5,
+                          ),
+                          animationType: AnimationType.bobbing,
+                        ),
+                      ),
+
                       const Spacer(),
+
                     ],
                   ),
 
@@ -131,6 +145,131 @@ class SoundMatchScreen extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ── Tactile Sound Prompt Button ─────────────────────────────────────────────
+class _PromptButton extends StatefulWidget {
+  final VoidCallback onTap;
+  const _PromptButton({required this.onTap});
+
+  @override
+  State<_PromptButton> createState() => _PromptButtonState();
+}
+
+class _PromptButtonState extends State<_PromptButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _pressController;
+  late Animation<double> _scaleAnim;
+  late Animation<double> _ringsAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _pressController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 120),
+    );
+    _scaleAnim = Tween<double>(begin: 1.0, end: 0.88).animate(
+      CurvedAnimation(parent: _pressController, curve: Curves.easeOut),
+    );
+    _ringsAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _pressController, curve: Curves.easeOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pressController.dispose();
+    super.dispose();
+  }
+
+  void _onTapDown(_) {
+    _pressController.forward();
+  }
+
+  void _onTapUp(_) {
+    _pressController.reverse();
+    widget.onTap();
+  }
+
+  void _onTapCancel() {
+    _pressController.reverse();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      onTapCancel: _onTapCancel,
+      child: AnimatedBuilder(
+        animation: _pressController,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnim.value,
+            child: SizedBox(
+              width: 140,
+              height: 140,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Outer pulse ring
+                  Container(
+                    width: 140,
+                    height: 140,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.goldenSunbeam.withValues(
+                            alpha: 0.25 + _ringsAnim.value * 0.15),
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                  // Middle ring
+                  Container(
+                    width: 116,
+                    height: 116,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.goldenSunbeam.withValues(
+                            alpha: 0.35 + _ringsAnim.value * 0.2),
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                  // Core button
+                  Container(
+                    width: 90,
+                    height: 90,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.goldenSunbeam
+                          .withValues(alpha: 0.9 + _ringsAnim.value * 0.1),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.goldenSunbeam.withValues(
+                              alpha: 0.4 + _ringsAnim.value * 0.3),
+                          blurRadius: 20 + _ringsAnim.value * 12,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.volume_up_rounded,
+                      size: 44,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }

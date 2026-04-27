@@ -9,6 +9,7 @@ import 'services/audio_service.dart';
 import 'services/haptic_service.dart';
 import 'services/progress_service.dart';
 import 'services/screen_time_service.dart';
+import 'services/voice_engine.dart';
 export 'routing/app_router.dart' show appRouterProvider;
 
 // ---------- Repositories ----------
@@ -31,7 +32,8 @@ final settingsServiceProvider = Provider((ref) {
 
 final audioServiceProvider = Provider<AudioService>((ref) {
   final settings = ref.watch(settingsServiceProvider);
-  final service = AudioService(settings);
+  final voiceEngine = ref.watch(voiceEngineProvider);
+  final service = AudioService(settings, voiceEngine);
   ref.onDispose(() => service.dispose());
   return service;
 });
@@ -49,6 +51,12 @@ final progressServiceProvider = Provider<ProgressService>((ref) {
 final screenTimeServiceProvider = ChangeNotifierProvider<ScreenTimeService>((ref) {
   final settings = ref.watch(settingsServiceProvider);
   return ScreenTimeService(settings);
+});
+
+final voiceEngineProvider = Provider<VoiceEngine>((ref) {
+  final service = VoiceEngine();
+  ref.onDispose(() => service.stop());
+  return service;
 });
 
 final screenTimeLimitReachedProvider = Provider<bool>((ref) {

@@ -96,16 +96,21 @@ class _ContentCardState extends ConsumerState<ContentCard> {
       _videoController!.addListener(_videoListener);
     }
 
-    await audioService.playCardSequence(
-      voicePath: widget.item.voicePath,
+    await audioService.playTtsCardSequence(
+      itemName: widget.item.name,
       soundPath: widget.item.soundPath,
-      soundDelay: widget.item.soundDelay,
     );
 
     // 🏆 Milestone: Reach 5 stars for the first time
-    if (_starRating == 5 && !progress.isItemCelebrated(widget.moduleId, widget.item.id)) {
+    if (_starRating == 5 &&
+        !progress.isItemCelebrated(widget.moduleId, widget.item.id)) {
       await progress.markItemCelebrated(widget.moduleId, widget.item.id);
       if (mounted) {
+        final settings = ref.read(settingsServiceProvider);
+        // Trigger voice and visual celebration simultaneously for high-impact feedback
+        ref
+            .read(voiceEngineProvider)
+            .speakMastery(widget.item.name, childName: settings.childName);
         _showMasteryCelebration();
       }
     }
@@ -114,14 +119,15 @@ class _ContentCardState extends ConsumerState<ContentCard> {
   void _showMasteryCelebration() {
     late OverlayEntry overlayEntry;
     overlayEntry = OverlayEntry(
-      builder: (context) => CategoryCelebrationOverlay(
-        mainText: 'Mastered!',
-        subText: 'You mastered the ${widget.item.name}!',
-        trophyColor: widget.backgroundColor,
-        onDismiss: () {
-          overlayEntry.remove();
-        },
-      ),
+      builder:
+          (context) => CategoryCelebrationOverlay(
+            mainText: 'Mastered!',
+            subText: 'You mastered the ${widget.item.name}!',
+            trophyColor: widget.backgroundColor,
+            onDismiss: () {
+              overlayEntry.remove();
+            },
+          ),
     );
     Overlay.of(context).insert(overlayEntry);
   }
@@ -143,135 +149,130 @@ class _ContentCardState extends ConsumerState<ContentCard> {
         // The actual card
         BreathingWidget(
           child: GestureDetector(
-                onTapDown: (details) {
-                  final audioService = ref.read(audioServiceProvider);
-                  
-                  // Both visual (confetti) and logic (audio) are now gated by the lock
-                  if (!audioService.isInteractionLocked) {
-                    setState(() {
-                      _tapPosition = details.localPosition;
-                      _isPressing = true;
-                    });
-                    _confettiController.play();
-                    _handleTap();
-                  }
-                },
-                onTapUp: (_) async {
-                  setState(() => _isPressing = false);
-                  // Wait a tiny bit so quick taps still show some confetti
-                  await Future.delayed(const Duration(milliseconds: 250));
-                  if (!_isPressing) {
-                    _confettiController.stop();
-                  }
-                },
-                onTapCancel: () {
-                  setState(() => _isPressing = false);
-                  _confettiController.stop();
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.15), // Glassmorphism
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      width: 2,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.15),
-                        blurRadius: 12,
-                        offset: const Offset(0, 8),
+            onTapDown: (details) {
+              final audioService = ref.read(audioServiceProvider);
+
+              // Both visual (confetti) and logic (audio) are now gated by the lock
+              if (!audioService.isInteractionLocked) {
+                setState(() {
+                  _tapPosition = details.localPosition;
+                  _isPressing = true;
+                });
+                _confettiController.play();
+                _handleTap();
+              }
+            },
+            onTapUp: (_) async {
+              setState(() => _isPressing = false);
+              // Wait a tiny bit so quick taps still show some confetti
+              await Future.delayed(const Duration(milliseconds: 250));
+              if (!_isPressing) {
+                _confettiController.stop();
+              }
+            },
+            onTapCancel: () {
+              setState(() => _isPressing = false);
+              _confettiController.stop();
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.15), // Glassmorphism
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  width: 2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.15),
+                    blurRadius: 12,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    // Base Image
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Image.asset(
+                          widget.item.imagePath,
+                          fit: BoxFit.contain,
+                          errorBuilder:
+                              (_, __, ___) => const Center(
+                                child: Icon(
+                                  Icons.image_not_supported,
+                                  size: 64,
+                                  color: Colors.white54,
+                                ),
+                              ),
+                        ),
                       ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(24),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        // Base Image
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Image.asset(
-                              widget.item.imagePath,
-                              fit: BoxFit.contain,
-                              errorBuilder:
-                                  (_, __, ___) => const Center(
-                                    child: Icon(
-                                      Icons.image_not_supported,
-                                      size: 64,
-                                      color: Colors.white54,
-                                    ),
-                                  ),
-                            ),
-                          ),
-                        ),
-
-                        // Video overlay (if playing)
-                        if (_isPlayingVideo && _videoController != null)
-                          Container(
-                            color: Colors.black.withValues(alpha: 0.9),
-                            child: Center(
-                              child: AspectRatio(
-                                aspectRatio:
-                                    _videoController!.value.aspectRatio,
-                                child: VideoPlayer(_videoController!),
-                              ),
-                            ),
-                          ),
-
-                        // Label - Floating through the bottom 10% area
-                        Positioned(
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          height: MediaQuery.of(context).size.height * 0.1,
-                          child: Center(
-                            child: PremiumAnimatedText(
-                              text: widget.item.name,
-                              trigger: _spellingKey,
-                              style: Theme.of(
-                                context,
-                              ).textTheme.headlineMedium?.copyWith(
-                                fontSize: 54,
-                                color: const Color(
-                                  0xFFFFCC4D,
-                                ), // Golden Sunbeam
-                                shadows: [
-                                  Shadow(
-                                    color: Colors.black.withValues(alpha: 0.3),
-                                    offset: const Offset(0, 4),
-                                    blurRadius: 8,
-                                  ),
-                                ],
-                              ),
-                              animationType: AnimationType.bobbing,
-                              hasDrift: true,
-                              staggerDelay: 140.ms,
-                              driftAmount: 20.0,
-                            ),
-                          ),
-                        ),
-
-                        // ⭐ Star rating badge — top-right
-                        if (_starRating > 0)
-                          Positioned(
-                            top: 8,
-                            right: 8,
-                            child: _StarRatingBadge(
-                              key: ValueKey(
-                                'stars_${_starRating}_$_spellingKey',
-                              ),
-                              stars: _starRating,
-                            ),
-                          ),
-                      ],
                     ),
-                  ),
+
+                    // Video overlay (if playing)
+                    if (_isPlayingVideo && _videoController != null)
+                      Container(
+                        color: Colors.black.withValues(alpha: 0.9),
+                        child: Center(
+                          child: AspectRatio(
+                            aspectRatio: _videoController!.value.aspectRatio,
+                            child: VideoPlayer(_videoController!),
+                          ),
+                        ),
+                      ),
+
+                    // Label - Floating through the bottom 10% area
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: MediaQuery.of(context).size.height * 0.1,
+                      child: Center(
+                        child: PremiumAnimatedText(
+                          text: widget.item.name,
+                          trigger: _spellingKey,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.headlineMedium?.copyWith(
+                            fontSize: 54,
+                            color: const Color(0xFFFFCC4D), // Golden Sunbeam
+                            shadows: [
+                              Shadow(
+                                color: Colors.black.withValues(alpha: 0.3),
+                                offset: const Offset(0, 4),
+                                blurRadius: 8,
+                              ),
+                            ],
+                          ),
+                          animationType: AnimationType.bobbing,
+                          hasDrift: true,
+                          staggerDelay: 140.ms,
+                          driftAmount: 20.0,
+                        ),
+                      ),
+                    ),
+
+                    // ⭐ Star rating badge — top-right
+                    if (_starRating > 0)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: _StarRatingBadge(
+                          key: ValueKey('stars_${_starRating}_$_spellingKey'),
+                          stars: _starRating,
+                        ),
+                      ),
+                  ],
                 ),
               ),
+            ),
+          ),
         ),
 
         // Confetti above the card at tap location

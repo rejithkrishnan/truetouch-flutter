@@ -20,6 +20,7 @@ dependencies:
   # Audio
   just_audio: ^0.9.42
   audioplayers: ^6.1.0
+  flutter_tts: ^4.2.2
 
   # Video
   video_player: ^2.9.3
@@ -54,13 +55,11 @@ flutter:
     - assets/modules/board_book/content.json
     - assets/modules/board_book/icon.webp
     - assets/modules/board_book/images/
-    - assets/modules/board_book/audio/voice/
     - assets/modules/board_book/audio/sounds/
     - assets/modules/sound_match/
     - assets/modules/sound_match/content.json
     - assets/modules/sound_match/icon.webp
     - assets/modules/sound_match/images/
-    - assets/modules/sound_match/audio/voice/
     - assets/modules/sound_match/audio/sounds/
 
   fonts:

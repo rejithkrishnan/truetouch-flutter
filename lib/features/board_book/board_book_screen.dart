@@ -33,13 +33,16 @@ class _BoardBookScreenState extends ConsumerState<BoardBookScreen> {
 
   List<_PageData> _buildPages(List<Category> categories, int cardsPerPage) {
     if (categories.isEmpty) return [];
-    
+
     final List<_PageData> pages = [];
     for (var cat in categories) {
       if (cat.items.isEmpty) continue;
-      
+
       for (int i = 0; i < cat.items.length; i += cardsPerPage) {
-        final end = (i + cardsPerPage < cat.items.length) ? i + cardsPerPage : cat.items.length;
+        final end =
+            (i + cardsPerPage < cat.items.length)
+                ? i + cardsPerPage
+                : cat.items.length;
         pages.add(_PageData(cat, cat.items.sublist(i, end)));
       }
     }
@@ -53,6 +56,8 @@ class _BoardBookScreenState extends ConsumerState<BoardBookScreen> {
     _audio = ref.read(audioServiceProvider);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _audio.switchTrack(BgmTrack.boardBook);
+      // Generic welcome for VoiceEngine on entry
+      ref.read(voiceEngineProvider).speak("Welcome back!!");
     });
   }
 
@@ -67,14 +72,15 @@ class _BoardBookScreenState extends ConsumerState<BoardBookScreen> {
   void _showCelebration(String categoryName, Color trophyColor) {
     late OverlayEntry overlayEntry;
     overlayEntry = OverlayEntry(
-      builder: (context) => CategoryCelebrationOverlay(
-        mainText: 'Great Job!',
-        subText: 'You finished $categoryName!',
-        trophyColor: trophyColor,
-        onDismiss: () {
-          overlayEntry.remove();
-        },
-      ),
+      builder:
+          (context) => CategoryCelebrationOverlay(
+            mainText: 'Great Job!',
+            subText: 'You finished $categoryName!',
+            trophyColor: trophyColor,
+            onDismiss: () {
+              overlayEntry.remove();
+            },
+          ),
     );
     Overlay.of(context).insert(overlayEntry);
   }
@@ -99,17 +105,18 @@ class _BoardBookScreenState extends ConsumerState<BoardBookScreen> {
         for (final category in categories) {
           final itemIds = category.items.map((i) => i.id).toList();
 
-          if (progress.isCategoryComplete(moduleId, itemIds) && 
+          if (progress.isCategoryComplete(moduleId, itemIds) &&
               !progress.isCategoryCelebrated(moduleId, category.id)) {
-            
             progress.markCategoryCelebrated(moduleId, category.id);
             // Use a color from the palette based on category index
             final categoryIndex = categories.indexOf(category);
-            final color = AppColors.nurseryPalette[categoryIndex % AppColors.nurseryPalette.length];
+            final color =
+                AppColors.nurseryPalette[categoryIndex %
+                    AppColors.nurseryPalette.length];
             _showCelebration(category.name, color);
-            
+
             // Only celebrate one category at a time if multiple finish simultaneously
-            break; 
+            break;
           }
         }
       });
@@ -122,15 +129,18 @@ class _BoardBookScreenState extends ConsumerState<BoardBookScreen> {
             imagePath: 'assets/images/background_boardbook.png',
             scaleFactor: 1.1,
           ),
-          
+
           SafeArea(
             child: categoriesAsync.when(
               data: (categories) {
                 final pages = _buildPages(categories, cardsPerPage);
-                
+
                 if (pages.isEmpty) {
                   return const Center(
-                    child: Text('No categories enabled.', style: TextStyle(fontSize: 24)),
+                    child: Text(
+                      'No categories enabled.',
+                      style: TextStyle(fontSize: 24),
+                    ),
                   );
                 }
 
@@ -138,12 +148,19 @@ class _BoardBookScreenState extends ConsumerState<BoardBookScreen> {
                   children: [
                     // Top Bar (Category Title & Home Button)
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24.0,
+                        vertical: 16.0,
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.home_rounded, size: 40, color: AppColors.titleText),
+                            icon: const Icon(
+                              Icons.home_rounded,
+                              size: 40,
+                              color: AppColors.titleText,
+                            ),
                             onPressed: () => context.pop(),
                           ),
                           // We use AnimatedBuilder to update category title dynamically as user scrolls
@@ -151,18 +168,21 @@ class _BoardBookScreenState extends ConsumerState<BoardBookScreen> {
                             animation: _pageController,
                             builder: (context, _) {
                               int pageIndex = 0;
-                              if (_pageController.hasClients && _pageController.position.haveDimensions) {
-                                pageIndex = _pageController.page?.round() ?? 10000;
+                              if (_pageController.hasClients &&
+                                  _pageController.position.haveDimensions) {
+                                pageIndex =
+                                    _pageController.page?.round() ?? 10000;
                               } else {
                                 pageIndex = 10000;
                               }
-                              
+
                               final safeIndex = pageIndex % pages.length;
                               final currentCategory = pages[safeIndex].category;
-                              
+
                               return PremiumAnimatedText(
                                 text: currentCategory.name,
-                                style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 40),
+                                style: Theme.of(context).textTheme.displayLarge
+                                    ?.copyWith(fontSize: 40),
                                 animationType: AnimationType.bobbing,
                               );
                             },
@@ -175,39 +195,49 @@ class _BoardBookScreenState extends ConsumerState<BoardBookScreen> {
                     // Infinite Pager
                     Expanded(
                       child: PageView.builder(
-                         controller: _pageController,
-                         // No itemCount = true infinite scroll
-                         itemBuilder: (context, index) {
-                           final safeIndex = index % pages.length;
-                           final pageData = pages[safeIndex];
+                        controller: _pageController,
+                        // No itemCount = true infinite scroll
+                        itemBuilder: (context, index) {
+                          final safeIndex = index % pages.length;
+                          final pageData = pages[safeIndex];
 
-                           return Padding(
-                             padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-                             child: Column(
-                               crossAxisAlignment: CrossAxisAlignment.center,
-                               mainAxisAlignment: MainAxisAlignment.center,
-                               children: pageData.items.asMap().entries.map((entry) {
-                                  // Assign color sequentially from palette
-                                  final colorIndex = (safeIndex + entry.key) % AppColors.nurseryPalette.length;
-                                  final color = AppColors.nurseryPalette[colorIndex];
-                                  
-                                  return Flexible(
-                                    fit: FlexFit.loose,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 12.0),
-                                      child: AspectRatio(
-                                        aspectRatio: 1.0, // Ensures the card stays completely square with perfectly tight bounds
-                                        child: ContentCard(
-                                          item: entry.value,
-                                          backgroundColor: color,
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24.0,
+                              vertical: 8.0,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children:
+                                  pageData.items.asMap().entries.map((entry) {
+                                    // Assign color sequentially from palette
+                                    final colorIndex =
+                                        (safeIndex + entry.key) %
+                                        AppColors.nurseryPalette.length;
+                                    final color =
+                                        AppColors.nurseryPalette[colorIndex];
+
+                                    return Flexible(
+                                      fit: FlexFit.loose,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 12.0,
+                                        ),
+                                        child: AspectRatio(
+                                          aspectRatio:
+                                              1.0, // Ensures the card stays completely square with perfectly tight bounds
+                                          child: ContentCard(
+                                            item: entry.value,
+                                            backgroundColor: color,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  );
-                               }).toList(),
-                             ),
-                           );
-                         },
+                                    );
+                                  }).toList(),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],

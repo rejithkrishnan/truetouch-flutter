@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'package:just_audio/just_audio.dart';
 import 'settings_service.dart';
+import 'voice_engine.dart';
 
 /// Which screen's BGM should be playing
 enum BgmTrack { home, boardBook, none }
 
 class AudioService {
   final SettingsService _settings;
+  final VoiceEngine? _voiceEngine;
 
   // Single BGM player — we stop/start between screens instead of cross-fading
   final AudioPlayer _bgmPlayer = AudioPlayer();
@@ -29,7 +31,7 @@ class AudioService {
     BgmTrack.boardBook: 'assets/audio/boardbook_bgm.mp3',
   };
 
-  AudioService(this._settings) {
+  AudioService(this._settings, [this._voiceEngine]) {
     _init();
   }
 
@@ -97,42 +99,23 @@ class AudioService {
 
   // ── Card Sequence ─────────────────────────────────────────────────────────
 
-  Future<void> playCardSequence({
-    required String? voicePath,
+  Future<void> playTtsCardSequence({
+    required String itemName,
     required String? soundPath,
-    required double soundDelay,
   }) async {
     if (!_settings.isSoundEnabled || _isCardSequencePlaying) return;
     _isCardSequencePlaying = true;
 
-    final vol = _settings.voiceVolume;
-    await _voicePlayer.setVolume(vol);
-    await _soundPlayer.setVolume(vol);
-
     try {
-      if (voicePath != null && voicePath.isNotEmpty) {
-        // Voice #1
-        await _voicePlayer.setAsset(voicePath);
-        await _voicePlayer.seek(Duration.zero);
-        await _voicePlayer.play();
-        try {
-          await _awaitPlayback(_voicePlayer);
-        } catch (_) {}
-
-        await Future.delayed(const Duration(milliseconds: 0));
-
-        // Voice #2
-        await _voicePlayer.seek(Duration.zero);
-        await _voicePlayer.play();
-        try {
-          await _awaitPlayback(_voicePlayer);
-        } catch (_) {}
+      // 1. Speak Item Name once via VoiceEngine
+      if (_voiceEngine != null) {
+        await _voiceEngine!.speak(itemName);
       }
 
-      final delayMs = (soundDelay * 1000).toInt() + 0;
-      await Future.delayed(Duration(milliseconds: delayMs));
-
+      // 2. Play Action Sound via Just Audio
       if (soundPath != null && soundPath.isNotEmpty) {
+        final vol = _settings.voiceVolume;
+        await _soundPlayer.setVolume(vol);
         await _soundPlayer.setAsset(soundPath);
         await _soundPlayer.seek(Duration.zero);
         await _soundPlayer.play();
@@ -141,43 +124,7 @@ class AudioService {
         } catch (_) {}
       }
     } catch (_) {
-      // Swallow to guarantee lock always releases
-    } finally {
-      _isCardSequencePlaying = false;
-    }
-  }
-
-  /// Plays a tight sequence: Voice Name -> Action Sound (0ms gap)
-  Future<void> playInteractionSequence(String? voicePath, String? soundPath) async {
-    if (!_settings.isSoundEnabled || _isCardSequencePlaying) return;
-    _isCardSequencePlaying = true;
-
-    try {
-      final vol = _settings.voiceVolume;
-      await _voicePlayer.setVolume(vol);
-      await _soundPlayer.setVolume(vol);
-
-      // 1. Voice Name
-      if (voicePath != null && voicePath.isNotEmpty) {
-        await _voicePlayer.setAsset(voicePath);
-        await _voicePlayer.seek(Duration.zero);
-        await _voicePlayer.play();
-        try {
-          await _awaitPlayback(_voicePlayer);
-        } catch (_) {}
-      }
-
-      // 2. Action Sound (0ms delay as per Golden Rules)
-      if (soundPath != null && soundPath.isNotEmpty) {
-        await _soundPlayer.setAsset(soundPath);
-        await _soundPlayer.seek(Duration.zero);
-        await _soundPlayer.play();
-        try {
-          await _awaitPlayback(_soundPlayer);
-        } catch (_) {}
-      }
-    } catch (_) {
-      // Ignore
+      // Swallow
     } finally {
       _isCardSequencePlaying = false;
     }

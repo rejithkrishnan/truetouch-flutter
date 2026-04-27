@@ -35,8 +35,11 @@
             android:value="2" />
     </application>
 
-    <!-- Required to query activities if targeting Android 11+ -->
+    <!-- Required for TTS on Android 11+ -->
     <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>

@@ -1,15 +1,16 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:confetti/confetti.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/models/content_item.dart';
 import '../../../shared/widgets/breathing_widget.dart';
-import '../../../shared/widgets/premium_animated_text.dart';
 
 class SoundMatchCard extends StatefulWidget {
   final ContentItem item;
   final bool isSelected;
   final bool isCorrect;
+  final bool isWrongHistory;
   final VoidCallback onTap;
 
   const SoundMatchCard({
@@ -17,6 +18,7 @@ class SoundMatchCard extends StatefulWidget {
     required this.item,
     required this.isSelected,
     required this.isCorrect,
+    required this.isWrongHistory,
     required this.onTap,
   });
 
@@ -24,29 +26,59 @@ class SoundMatchCard extends StatefulWidget {
   State<SoundMatchCard> createState() => _SoundMatchCardState();
 }
 
-class _SoundMatchCardState extends State<SoundMatchCard> {
+class _SoundMatchCardState extends State<SoundMatchCard>
+    with SingleTickerProviderStateMixin {
   late ConfettiController _confettiController;
+
+  /// One-shot shake controller — only plays forward, never reverses
+  late AnimationController _shakeController;
+
+  /// Accent color locked in initState — stable across rebuilds
+  late Color _accentColor;
   bool _isPressing = false;
 
   @override
   void initState() {
     super.initState();
-    _confettiController = ConfettiController(duration: const Duration(seconds: 15));
+    _accentColor = AppColors.nurseryPalette[
+        Random().nextInt(AppColors.nurseryPalette.length)];
+    _confettiController =
+        ConfettiController(duration: const Duration(seconds: 15));
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
   }
 
   @override
   void didUpdateWidget(SoundMatchCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // If we just found out this is correct AND the user is still holding it, shower!
+
+    // Confetti: trigger when THIS card becomes correct
     if (!oldWidget.isCorrect && widget.isCorrect && _isPressing) {
       _confettiController.play();
+    }
+
+    // Shake: only when transitioning into wrong-selected state (never on deselect)
+    final wasWrong = oldWidget.isSelected && !oldWidget.isCorrect;
+    final isWrong = widget.isSelected && !widget.isCorrect;
+    if (!wasWrong && isWrong) {
+      _shakeController.forward(from: 0);
     }
   }
 
   @override
   void dispose() {
     _confettiController.dispose();
+    _shakeController.dispose();
     super.dispose();
+  }
+
+  Color get _borderColor {
+    if (widget.isSelected) {
+      return widget.isCorrect ? AppColors.softMint : AppColors.softCoral;
+    }
+    return Colors.white.withValues(alpha: 0.25);
   }
 
   @override
@@ -56,19 +88,12 @@ class _SoundMatchCardState extends State<SoundMatchCard> {
         onTapDown: (_) {
           setState(() => _isPressing = true);
           widget.onTap();
-          
-          // If it was already known to be correct (e.g. repeat tap), shower immediately
-          if (widget.isCorrect) {
-            _confettiController.play();
-          }
+          if (widget.isCorrect) _confettiController.play();
         },
         onTapUp: (_) async {
           setState(() => _isPressing = false);
-          // Wait a tiny bit so quick taps still show some confetti
           await Future.delayed(const Duration(milliseconds: 250));
-          if (!_isPressing) {
-            _confettiController.stop();
-          }
+          if (!_isPressing) _confettiController.stop();
         },
         onTapCancel: () {
           setState(() => _isPressing = false);
@@ -77,56 +102,51 @@ class _SoundMatchCardState extends State<SoundMatchCard> {
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            Container(
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15), // Glassmorphism
+                color: Colors.white.withValues(alpha: 0.18),
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: widget.isSelected 
-                    ? (widget.isCorrect ? AppColors.softMint : AppColors.softCoral)
-                    : Colors.white.withValues(alpha: 0.2),
-                  width: widget.isSelected ? 4 : 2,
+                  color: _borderColor,
+                  width: widget.isSelected ? 1.5 : 0.5,
                 ),
                 boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.15),
-                    blurRadius: 12,
-                    offset: const Offset(0, 8),
-                  ),
+                  if (widget.isWrongHistory && !widget.isSelected)
+                    BoxShadow(
+                      color: AppColors.softCoral.withValues(alpha: 0.35),
+                      blurRadius: 18,
+                      spreadRadius: 1,
+                      offset: const Offset(0, 4),
+                    )
+                  else
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.10),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
                 ],
               ),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Image.asset(
-                        widget.item.imagePath,
-                        fit: BoxFit.contain,
-                      ),
+              child: Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(18),
+                  child: Container(
+                    color: Colors.white,
+                    child: Image.asset(
+                      widget.item.imagePath,
+                      fit: BoxFit.contain,
                     ),
                   ),
-                  if (widget.isSelected && widget.isCorrect)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12.0),
-                      child: PremiumAnimatedText(
-                        text: widget.item.name,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.titleText,
-                        ),
-                        animationType: AnimationType.bobbing,
-                        hasDrift: true,
-                      ),
-                    ),
-                ],
+                ),
               ),
             )
-                .animate(target: widget.isSelected && !widget.isCorrect ? 1 : 0)
+                // Uses controller — plays once forward on wrong tap, never reverses
+                .animate(controller: _shakeController, autoPlay: false)
                 .shake(duration: 500.ms, curve: Curves.easeInOut),
 
-            // Confetti spray
+            // Confetti
             Align(
               alignment: Alignment.center,
               child: ConfettiWidget(

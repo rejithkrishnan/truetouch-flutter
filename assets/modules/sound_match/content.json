@@ -1,202 +1,154 @@
 {
     "categories": [
         {
-            "id": "farm_animals_1",
-            "name": "Farm Animals 1",
+            "id": "farm_animals",
+            "name": "Farm Animals",
             "items": [
                 {
                     "id": "dog",
-                    "label": "Dog",
-                    "image": "assets/modules/sound_match/images/dog.webp",
-                    "voice": "assets/modules/sound_match/audio/voice/dog.mp3",
-                    "sound": "assets/modules/sound_match/audio/sounds/dog.mp3"
+                    "name": "Dog",
+                    "image": "assets/modules/board_book/images/dog.webp",
+                    "sound": "assets/modules/board_book/audio/sounds/dog.mp3"
                 },
                 {
                     "id": "cat",
-                    "label": "Cat",
-                    "image": "assets/modules/sound_match/images/cat.webp",
-                    "voice": "assets/modules/sound_match/audio/voice/cat.mp3",
-                    "sound": "assets/modules/sound_match/audio/sounds/cat.mp3"
-                }
-            ]
-        },
-        {
-            "id": "farm_animals_2",
-            "name": "Farm Animals 2",
-            "items": [
+                    "name": "Cat",
+                    "image": "assets/modules/board_book/images/cat.webp",
+                    "video": "assets/modules/board_book/images/cat.ogv",
+                    "sound": "assets/modules/board_book/audio/sounds/cat.mp3",
+                    "is_video": true
+                },
                 {
                     "id": "cow",
-                    "label": "Cow",
-                    "image": "assets/modules/sound_match/images/cow.webp",
-                    "voice": "assets/modules/sound_match/audio/voice/cow.mp3",
-                    "sound": "assets/modules/sound_match/audio/sounds/cow.mp3"
+                    "name": "Cow",
+                    "image": "assets/modules/board_book/images/cow.webp",
+                    "sound": "assets/modules/board_book/audio/sounds/cow.mp3"
                 },
                 {
                     "id": "chicken",
-                    "label": "Chicken",
-                    "image": "assets/modules/sound_match/images/chicken.webp",
-                    "voice": "assets/modules/sound_match/audio/voice/chicken.mp3",
-                    "sound": "assets/modules/sound_match/audio/sounds/chicken.mp3"
+                    "name": "Chicken",
+                    "image": "assets/modules/board_book/images/chicken.webp",
+                    "sound": "assets/modules/board_book/audio/sounds/chicken.mp3"
                 }
             ]
         },
         {
-            "id": "wild_animals_1",
-            "name": "Wild Animals 1",
+            "id": "wild_animals",
+            "name": "Wild Animals",
             "items": [
                 {
                     "id": "lion",
-                    "label": "Lion",
-                    "image": "assets/modules/sound_match/images/lion.webp",
-                    "voice": "assets/modules/sound_match/audio/voice/lion.mp3",
-                    "sound": "assets/modules/sound_match/audio/sounds/lion.mp3"
+                    "name": "Lion",
+                    "image": "assets/modules/board_book/images/lion.webp",
+                    "sound": "assets/modules/board_book/audio/sounds/lion.mp3"
                 },
                 {
                     "id": "elephant",
-                    "label": "Elephant",
-                    "image": "assets/modules/sound_match/images/elephant.webp",
-                    "voice": "assets/modules/sound_match/audio/voice/elephant.mp3",
-                    "sound": "assets/modules/sound_match/audio/sounds/elephant.mp3"
-                }
-            ]
-        },
-        {
-            "id": "wild_animals_2",
-            "name": "Wild Animals 2",
-            "items": [
+                    "name": "Elephant",
+                    "image": "assets/modules/board_book/images/elephant.webp",
+                    "sound": "assets/modules/board_book/audio/sounds/elephant.mp3"
+                },
                 {
                     "id": "bird",
-                    "label": "Bird",
-                    "image": "assets/modules/sound_match/images/bird.webp",
-                    "voice": "assets/modules/sound_match/audio/voice/bird.mp3",
-                    "sound": "assets/modules/sound_match/audio/sounds/bird.mp3"
+                    "name": "Bird",
+                    "image": "assets/modules/board_book/images/bird.webp",
+                    "sound": "assets/modules/board_book/audio/sounds/bird.mp3"
                 },
                 {
                     "id": "bear",
-                    "label": "Bear",
-                    "image": "assets/modules/sound_match/images/bear.webp",
-                    "voice": "assets/modules/sound_match/audio/voice/bear.mp3",
-                    "sound": "assets/modules/sound_match/audio/sounds/bear.mp3"
+                    "name": "Bear",
+                    "image": "assets/modules/board_book/images/bear.webp",
+                    "sound": "assets/modules/board_book/audio/sounds/bear.mp3"
                 }
             ]
         },
         {
-            "id": "vehicles_1",
-            "name": "Vehicles 1",
+            "id": "vehicles",
+            "name": "Vehicles",
             "items": [
                 {
                     "id": "car",
-                    "label": "Car",
-                    "image": "assets/modules/sound_match/images/car.webp",
-                    "voice": "assets/modules/sound_match/audio/voice/car.mp3",
-                    "sound": "assets/modules/sound_match/audio/sounds/car.mp3"
+                    "name": "Car",
+                    "image": "assets/modules/board_book/images/car.webp",
+                    "sound": "assets/modules/board_book/audio/sounds/car.mp3"
                 },
                 {
                     "id": "bus",
-                    "label": "Bus",
-                    "image": "assets/modules/sound_match/images/bus.webp",
-                    "voice": "assets/modules/sound_match/audio/voice/bus.mp3",
-                    "sound": "assets/modules/sound_match/audio/sounds/bus.mp3"
-                }
-            ]
-        },
-        {
-            "id": "vehicles_2",
-            "name": "Vehicles 2",
-            "items": [
+                    "name": "Bus",
+                    "image": "assets/modules/board_book/images/bus.webp",
+                    "sound": "assets/modules/board_book/audio/sounds/bus.mp3"
+                },
                 {
                     "id": "train",
-                    "label": "Train",
-                    "image": "assets/modules/sound_match/images/train.webp",
-                    "voice": "assets/modules/sound_match/audio/voice/train.mp3",
-                    "sound": "assets/modules/sound_match/audio/sounds/train.mp3"
+                    "name": "Train",
+                    "image": "assets/modules/board_book/images/train.webp",
+                    "sound": "assets/modules/board_book/audio/sounds/train.mp3"
                 },
                 {
                     "id": "airplane",
-                    "label": "Airplane",
-                    "image": "assets/modules/sound_match/images/airplane.webp",
-                    "voice": "assets/modules/sound_match/audio/voice/airplane.mp3",
-                    "sound": "assets/modules/sound_match/audio/sounds/airplane.mp3"
+                    "name": "Airplane",
+                    "image": "assets/modules/board_book/images/airplane.webp",
+                    "sound": "assets/modules/board_book/audio/sounds/airplane.mp3"
                 }
             ]
         },
         {
-            "id": "everyday_objects_1",
-            "name": "Everyday Objects 1",
+            "id": "everyday_objects",
+            "name": "Everyday Objects",
             "items": [
                 {
                     "id": "ball",
-                    "label": "Ball",
-                    "image": "assets/modules/sound_match/images/ball.webp",
-                    "voice": "assets/modules/sound_match/audio/voice/ball.mp3",
-                    "sound": "assets/modules/sound_match/audio/sounds/ball.mp3"
+                    "name": "Ball",
+                    "image": "assets/modules/board_book/images/ball.webp",
+                    "sound": "assets/modules/board_book/audio/sounds/ball.mp3"
                 },
                 {
                     "id": "spoon",
-                    "label": "Spoon",
-                    "image": "assets/modules/sound_match/images/spoon.webp",
-                    "voice": "assets/modules/sound_match/audio/voice/spoon.mp3",
-                    "sound": "assets/modules/sound_match/audio/sounds/spoon.mp3"
-                }
-            ]
-        },
-        {
-            "id": "everyday_objects_2",
-            "name": "Everyday Objects 2",
-            "items": [
+                    "name": "Spoon",
+                    "image": "assets/modules/board_book/images/spoon.webp",
+                    "sound": "assets/modules/board_book/audio/sounds/spoon.mp3"
+                },
                 {
                     "id": "shoe",
-                    "label": "Shoe",
-                    "image": "assets/modules/sound_match/images/shoe.webp",
-                    "voice": "assets/modules/sound_match/audio/voice/shoe.mp3",
-                    "sound": "assets/modules/sound_match/audio/sounds/shoe.mp3"
+                    "name": "Shoe",
+                    "image": "assets/modules/board_book/images/shoe.webp",
+                    "sound": "assets/modules/board_book/audio/sounds/shoe.mp3"
                 },
                 {
                     "id": "clock",
-                    "label": "Clock",
-                    "image": "assets/modules/sound_match/images/clock.webp",
-                    "voice": "assets/modules/sound_match/audio/voice/clock.mp3",
-                    "sound": "assets/modules/sound_match/audio/sounds/clock.mp3"
+                    "name": "Clock",
+                    "image": "assets/modules/board_book/images/clock.webp",
+                    "sound": "assets/modules/board_book/audio/sounds/clock.mp3"
                 }
             ]
         },
         {
-            "id": "nature_1",
-            "name": "Nature 1",
+            "id": "nature",
+            "name": "Nature",
             "items": [
                 {
                     "id": "apple",
-                    "label": "Apple",
-                    "image": "assets/modules/sound_match/images/apple.webp",
-                    "voice": "assets/modules/sound_match/audio/voice/apple.mp3",
-                    "sound": "assets/modules/sound_match/audio/sounds/apple.mp3"
+                    "name": "Apple",
+                    "image": "assets/modules/board_book/images/apple.webp",
+                    "sound": "assets/modules/board_book/audio/sounds/apple.mp3"
                 },
                 {
                     "id": "banana",
-                    "label": "Banana",
-                    "image": "assets/modules/sound_match/images/banana.webp",
-                    "voice": "assets/modules/sound_match/audio/voice/banana.mp3",
-                    "sound": "assets/modules/sound_match/audio/sounds/banana.mp3"
-                }
-            ]
-        },
-        {
-            "id": "nature_2",
-            "name": "Nature 2",
-            "items": [
+                    "name": "Banana",
+                    "image": "assets/modules/board_book/images/banana.webp",
+                    "sound": "assets/modules/board_book/audio/sounds/banana.mp3"
+                },
                 {
                     "id": "flower",
-                    "label": "Flower",
-                    "image": "assets/modules/sound_match/images/flower.webp",
-                    "voice": "assets/modules/sound_match/audio/voice/flower.mp3",
-                    "sound": "assets/modules/sound_match/audio/sounds/flower.mp3"
+                    "name": "Flower",
+                    "image": "assets/modules/board_book/images/flower.webp",
+                    "sound": "assets/modules/board_book/audio/sounds/flower.mp3"
                 },
                 {
                     "id": "tree",
-                    "label": "Tree",
-                    "image": "assets/modules/sound_match/images/tree.webp",
-                    "voice": "assets/modules/sound_match/audio/voice/tree.mp3",
-                    "sound": "assets/modules/sound_match/audio/sounds/tree.mp3"
+                    "name": "Tree",
+                    "image": "assets/modules/board_book/images/tree.webp",
+                    "sound": "assets/modules/board_book/audio/sounds/tree.mp3"
                 }
             ]
         }
