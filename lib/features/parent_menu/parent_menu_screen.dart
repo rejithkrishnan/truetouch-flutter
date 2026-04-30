@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers.dart';
 import '../../core/theme/app_theme.dart';
 import 'screens/board_book_settings_screen.dart';
+import 'screens/bubble_pop_settings_screen.dart';
 import 'screens/sound_match_settings_screen.dart';
 import 'widgets/settings_shared_widgets.dart';
 
@@ -128,6 +129,19 @@ class _ParentMenuHubState extends ConsumerState<_ParentMenuHub> {
                 () => Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => const SoundMatchSettingsScreen(),
+                  ),
+                ),
+          ),
+
+          SettingsTile(
+            icon: Icons.bubble_chart_rounded,
+            iconColor: Colors.blueAccent,
+            title: 'Pop the Bubbles Settings',
+            subtitle: 'Customize letters, numbers, and speed',
+            onTap:
+                () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const BubblePopSettingsScreen(),
                   ),
                 ),
           ),

@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/providers.dart';
+import '../../core/services/audio_service.dart';
+import '../../core/services/voice_engine.dart';
 import '../../shared/widgets/animated_background.dart';
 import '../../shared/widgets/premium_animated_text.dart';
 import '../../shared/widgets/category_celebration_overlay.dart';
@@ -11,11 +13,39 @@ import 'providers/sound_match_provider.dart';
 import 'models/sound_match_state.dart';
 import 'widgets/sound_match_card.dart';
 
-class SoundMatchScreen extends ConsumerWidget {
+class SoundMatchScreen extends ConsumerStatefulWidget {
   const SoundMatchScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SoundMatchScreen> createState() => _SoundMatchScreenState();
+}
+
+class _SoundMatchScreenState extends ConsumerState<SoundMatchScreen> {
+  late final AudioService _audio;
+  late final VoiceEngine _voice;
+
+  @override
+  void initState() {
+    super.initState();
+    // Cache service refs immediately — ref is dead by dispose() time
+    _audio = ref.read(audioServiceProvider);
+    _voice = ref.read(voiceEngineProvider);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _audio.switchTrack(BgmTrack.soundMatch);
+    });
+  }
+
+  @override
+  void dispose() {
+    // Stop all audio immediately when leaving the screen
+    _voice.stop();
+    _audio.cancelSequence();
+    _audio.switchTrack(BgmTrack.home);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final stateAsync = ref.watch(soundMatchProvider);
 
     return Scaffold(

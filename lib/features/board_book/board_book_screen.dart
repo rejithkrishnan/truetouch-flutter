@@ -20,6 +20,21 @@ class _PageData {
   _PageData(this.category, this.items);
 }
 
+// ── Custom Scroll Physics for Toddlers ──────────────────────────────────────
+// Increases the drag distance required to trigger a swipe, preventing accidental
+// page turns when the child is just trying to tap a card.
+class _HeavyPageScrollPhysics extends PageScrollPhysics {
+  const _HeavyPageScrollPhysics({super.parent});
+
+  @override
+  _HeavyPageScrollPhysics applyTo(ScrollPhysics? ancestor) {
+    return _HeavyPageScrollPhysics(parent: buildParent(ancestor));
+  }
+
+  @override
+  double get dragStartDistanceMotionThreshold => 150.0; // Higher threshold (default is ~18 for touch)
+}
+
 class BoardBookScreen extends ConsumerStatefulWidget {
   const BoardBookScreen({super.key});
 
@@ -52,6 +67,9 @@ class _BoardBookScreenState extends ConsumerState<BoardBookScreen> {
   @override
   void initState() {
     super.initState();
+    // Force a fresh shuffle every time we enter the screen
+    ref.invalidate(boardBookCategoriesProvider);
+    
     // Cache audio service ref BEFORE dispose() — ref is dead by then!
     _audio = ref.read(audioServiceProvider);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -196,6 +214,7 @@ class _BoardBookScreenState extends ConsumerState<BoardBookScreen> {
                     Expanded(
                       child: PageView.builder(
                         controller: _pageController,
+                        physics: const _HeavyPageScrollPhysics(),
                         // No itemCount = true infinite scroll
                         itemBuilder: (context, index) {
                           final safeIndex = index % pages.length;

@@ -15,6 +15,14 @@
       "route": "/sound-match",
       "dataPath": "assets/modules/sound_match/content.json",
       "enabled": true
+    },
+    {
+      "id": "bubble_pop",
+      "name": "Pop the Bubbles",
+      "icon": "assets/modules/bubble_pop/icon.png",
+      "route": "/bubble-pop",
+      "dataPath": "",
+      "enabled": true
     }
   ]
 }

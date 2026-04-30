@@ -29,11 +29,7 @@ class SoundMatchCard extends StatefulWidget {
 class _SoundMatchCardState extends State<SoundMatchCard>
     with SingleTickerProviderStateMixin {
   late ConfettiController _confettiController;
-
-  /// One-shot shake controller — only plays forward, never reverses
   late AnimationController _shakeController;
-
-  /// Accent color locked in initState — stable across rebuilds
   late Color _accentColor;
   bool _isPressing = false;
 
@@ -53,13 +49,9 @@ class _SoundMatchCardState extends State<SoundMatchCard>
   @override
   void didUpdateWidget(SoundMatchCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    // Confetti: trigger when THIS card becomes correct
     if (!oldWidget.isCorrect && widget.isCorrect && _isPressing) {
       _confettiController.play();
     }
-
-    // Shake: only when transitioning into wrong-selected state (never on deselect)
     final wasWrong = oldWidget.isSelected && !oldWidget.isCorrect;
     final isWrong = widget.isSelected && !widget.isCorrect;
     if (!wasWrong && isWrong) {
@@ -90,11 +82,7 @@ class _SoundMatchCardState extends State<SoundMatchCard>
           widget.onTap();
           if (widget.isCorrect) _confettiController.play();
         },
-        onTapUp: (_) async {
-          setState(() => _isPressing = false);
-          await Future.delayed(const Duration(milliseconds: 250));
-          if (!_isPressing) _confettiController.stop();
-        },
+        onTapUp: (_) => setState(() => _isPressing = false),
         onTapCancel: () {
           setState(() => _isPressing = false);
           _confettiController.stop();
@@ -106,7 +94,7 @@ class _SoundMatchCardState extends State<SoundMatchCard>
               duration: const Duration(milliseconds: 200),
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.18),
+                color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
                   color: _borderColor,
@@ -123,26 +111,22 @@ class _SoundMatchCardState extends State<SoundMatchCard>
                   else
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.10),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6),
+                      blurRadius: 12,
+                      offset: const Offset(0, 8),
                     ),
                 ],
               ),
               child: Padding(
                 padding: const EdgeInsets.all(5.0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(18),
-                  child: Container(
-                    color: Colors.white,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(18),
                     child: Image.asset(
                       widget.item.imagePath,
                       fit: BoxFit.contain,
                     ),
                   ),
-                ),
               ),
             )
-                // Uses controller — plays once forward on wrong tap, never reverses
                 .animate(controller: _shakeController, autoPlay: false)
                 .shake(duration: 500.ms, curve: Curves.easeInOut),
 
@@ -152,8 +136,8 @@ class _SoundMatchCardState extends State<SoundMatchCard>
               child: ConfettiWidget(
                 confettiController: _confettiController,
                 blastDirectionality: BlastDirectionality.explosive,
-                emissionFrequency: 0.1,
-                numberOfParticles: 20,
+                emissionFrequency: 0.05,
+                numberOfParticles: 15,
                 maxBlastForce: 15,
                 minBlastForce: 5,
                 gravity: 0.05,

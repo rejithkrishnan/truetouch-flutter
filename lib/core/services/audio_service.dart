@@ -4,7 +4,7 @@ import 'settings_service.dart';
 import 'voice_engine.dart';
 
 /// Which screen's BGM should be playing
-enum BgmTrack { home, boardBook, none }
+enum BgmTrack { home, boardBook, soundMatch, bubblePop, none }
 
 class AudioService {
   final SettingsService _settings;
@@ -29,6 +29,8 @@ class AudioService {
   static const Map<BgmTrack, String> _trackAssets = {
     BgmTrack.home: 'assets/audio/home_bgm.mp3',
     BgmTrack.boardBook: 'assets/audio/boardbook_bgm.mp3',
+    BgmTrack.soundMatch: 'assets/audio/sound_match_bgm.mp3',
+    BgmTrack.bubblePop: 'assets/audio/home_bgm.mp3', // Reusing home bgm if no specific bubble pop bgm is provided
   };
 
   AudioService(this._settings, [this._voiceEngine]) {
@@ -140,6 +142,26 @@ class AudioService {
       await _soundPlayer.setAsset(assetPath);
       await _soundPlayer.seek(Duration.zero);
       await _soundPlayer.play();
+    } catch (_) {
+      // Ignore errors
+    }
+  }
+
+  /// Plays a random balloon pop sound.
+  Future<void> playRandomPopSound() async {
+    if (!_settings.isSoundEnabled) return;
+    try {
+      final int randIndex = DateTime.now().millisecondsSinceEpoch % 4 + 1; // 1 to 4
+      final String assetPath = 'assets/audio/balloon_pop/pop$randIndex.mp3';
+      
+      final vol = _settings.voiceVolume;
+      await _soundPlayer.setVolume(vol);
+      await _soundPlayer.setAsset(assetPath);
+      await _soundPlayer.seek(Duration.zero);
+      await _soundPlayer.play();
+      try {
+        await _awaitPlayback(_soundPlayer);
+      } catch (_) {}
     } catch (_) {
       // Ignore errors
     }

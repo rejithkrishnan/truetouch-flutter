@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/settings_shared_widgets.dart';
 import '../../sound_match/providers/sound_match_provider.dart';
 import '../../sound_match/models/sound_match_state.dart';
+import '../../../core/providers.dart';
 
 class SoundMatchSettingsScreen extends ConsumerWidget {
   const SoundMatchSettingsScreen({super.key});
@@ -11,6 +12,7 @@ class SoundMatchSettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final stateAsync = ref.watch(soundMatchProvider);
     final categoriesAsync = ref.watch(allSoundMatchCategoriesProvider);
+    final progressService = ref.watch(progressServiceProvider);
 
     final currentDifficulty =
         stateAsync.value?.difficulty ?? SoundMatchDifficulty.expert;
@@ -96,7 +98,7 @@ class SoundMatchSettingsScreen extends ConsumerWidget {
           ),
 
           // ── Category Mode ─────────────────────────────────────────────
-          const SectionHeader(label: 'Category'),
+          const SectionHeader(label: 'Modes & Stars'),
 
           // Random toggle
           Container(
@@ -124,7 +126,7 @@ class SoundMatchSettingsScreen extends ConsumerWidget {
               subtitle: Text(
                 isRandomMode
                     ? 'Mixing objects from all categories'
-                    : 'Using selected categories below',
+                    : 'Custom rotation using selected categories',
                 style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
               ),
               value: isRandomMode,
@@ -134,85 +136,113 @@ class SoundMatchSettingsScreen extends ConsumerWidget {
             ),
           ),
 
-          // Category checkboxes (dimmed when random is on)
-          AnimatedOpacity(
-            opacity: isRandomMode ? 0.4 : 1.0,
-            duration: const Duration(milliseconds: 200),
-            child: IgnorePointer(
-              ignoring: isRandomMode,
-              child: categoriesAsync.when(
-                loading: () => const Padding(
-                  padding: EdgeInsets.all(24),
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-                error: (err, _) =>
-                    Center(child: Text('Error loading categories: $err')),
-                data: (categories) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (!isRandomMode && selectedIds.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 4),
-                        child: Text(
-                          'Select at least one category below',
-                          style: TextStyle(
-                              fontSize: 12, color: Colors.orange.shade700),
-                        ),
+          // Subtitle for category scores
+          Padding(
+            padding: const EdgeInsets.only(left: 18, top: 12, bottom: 4),
+            child: Text(
+              'CATEGORY BEST SCORES',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.2,
+                color: Colors.grey.shade600,
+              ),
+            ),
+          ),
+
+          // Category list
+          categoriesAsync.when(
+            loading: () => const Padding(
+              padding: EdgeInsets.all(24),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+            error: (err, _) =>
+                Center(child: Text('Error loading categories: $err')),
+            data: (categories) => Column(
+              children: categories.map((cat) {
+                final isChecked = selectedIds.contains(cat.id);
+                final isLastSelected = isChecked && selectedIds.length == 1;
+                final stars = progressService.getSoundMatchStars(cat.id);
+
+                return Container(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: !isRandomMode && isChecked
+                        ? Colors.teal.shade50
+                        : Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: !isRandomMode && isChecked
+                          ? Colors.teal
+                          : Colors.grey.shade200,
+                      width: !isRandomMode && isChecked ? 2 : 1,
+                    ),
+                  ),
+                  child: CheckboxListTile(
+                    enabled: !isRandomMode && !isLastSelected,
+                    secondary: CircleAvatar(
+                      backgroundColor:
+                          stars > 0 ? Colors.amber.shade100 : Colors.grey.shade100,
+                      child: Icon(
+                        stars == 3 ? Icons.emoji_events_rounded : Icons.category_rounded,
+                        color: stars > 0 ? Colors.amber.shade800 : Colors.grey.shade400,
+                        size: 18,
                       ),
-                    ...categories.map((cat) {
-                      final soundCount = cat.items
-                          .where((i) => i.soundPath != null)
-                          .length;
-                      final isChecked = selectedIds.contains(cat.id);
-                      return Container(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: isChecked ? Colors.teal.shade50 : Colors.white,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: isChecked
-                                ? Colors.teal
-                                : Colors.grey.shade200,
-                            width: isChecked ? 2 : 1,
-                          ),
-                        ),
-                        child: CheckboxListTile(
-                          secondary: CircleAvatar(
-                            backgroundColor: isChecked
-                                ? Colors.teal
-                                : Colors.teal.withValues(alpha: 0.12),
-                            child: Icon(Icons.category_rounded,
-                                color: isChecked ? Colors.white : Colors.teal,
-                                size: 18),
-                          ),
-                          title: Text(
+                    ),
+                    title: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
                             cat.name,
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
-                              color: isChecked
+                              color: !isRandomMode && isChecked
                                   ? Colors.teal.shade800
                                   : Colors.black87,
                             ),
                           ),
-                          subtitle: Text(
-                            '$soundCount items with sound',
-                            style: TextStyle(
-                                fontSize: 12, color: Colors.grey.shade500),
-                          ),
-                          value: isChecked,
-                          activeColor: Colors.teal,
-                          controlAffinity: ListTileControlAffinity.trailing,
-                          onChanged: (_) => ref
-                              .read(soundMatchProvider.notifier)
-                              .toggleCategory(cat.id),
                         ),
-                      );
-                    }),
-                  ],
-                ),
-              ),
+                        // Always show stars (solid/outline based on score)
+                        Row(
+                          children: List.generate(3, (i) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 1),
+                              child: Icon(
+                                i < stars
+                                    ? Icons.star_rounded
+                                    : Icons.star_border_rounded,
+                                color: i < stars ? Colors.amber : Colors.grey.shade300,
+                                size: 20,
+                              ),
+                            );
+                          }),
+                        ),
+                      ],
+                    ),
+                    subtitle: Text(
+                      isRandomMode
+                          ? 'Played in Random Mode'
+                          : isLastSelected
+                              ? 'At least one category required'
+                              : isChecked
+                                  ? 'Selected for rotation'
+                                  : 'Tap to include in rotation',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isLastSelected ? Colors.orange : Colors.grey.shade500,
+                      ),
+                    ),
+                    value: !isRandomMode && isChecked,
+                    activeColor: Colors.teal,
+                    onChanged: isRandomMode || isLastSelected
+                        ? null
+                        : (_) => ref
+                            .read(soundMatchProvider.notifier)
+                            .toggleCategory(cat.id),
+                  ),
+                );
+              }).toList(),
             ),
           ),
 

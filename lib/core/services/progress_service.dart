@@ -113,11 +113,35 @@ class ProgressService {
   }
 
   Future<void> resetAll() async {
-    final keys = _prefs.getKeys().where((k) => k.startsWith(_prefix) || k.startsWith(_celebrationPrefix)).toList();
+    final keys = _prefs.getKeys().where((k) => 
+      k.startsWith(_prefix) || 
+      k.startsWith(_celebrationPrefix) ||
+      k.startsWith('sm_stars_')
+    ).toList();
     for (final k in keys) {
       await _prefs.remove(k);
     }
   }
+
+  // ── Sound Match Scoring ──────────────────────────────────────────────────
+
+  String _smStarsKey(String categoryId) => 'sm_stars_$categoryId';
+
+  /// Best score: 0 mistakes = 3, 1 = 2, 2+ = 1 star.
+  Future<void> recordSoundMatchResult(String categoryId, int mistakes) async {
+    final key = _smStarsKey(categoryId);
+    final currentStars = getSoundMatchStars(categoryId);
+    int newStars = 1;
+    if (mistakes == 0) newStars = 3;
+    else if (mistakes == 1) newStars = 2;
+
+    if (newStars > currentStars) {
+      await _prefs.setInt(key, newStars);
+    }
+  }
+
+  int getSoundMatchStars(String categoryId) =>
+      _prefs.getInt(_smStarsKey(categoryId)) ?? 0;
 }
 
 /// Stats summary for one category.

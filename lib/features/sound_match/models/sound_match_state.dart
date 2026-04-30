@@ -27,6 +27,7 @@ class SoundMatchState {
 
   /// Which category is currently being played (display info)
   final String? activeCategoryName;
+  final int mistakes;
 
   const SoundMatchState({
     this.choices = const [],
@@ -40,6 +41,7 @@ class SoundMatchState {
     this.isRandomMode = true,
     this.selectedCategoryIds = const {},
     this.activeCategoryName,
+    this.mistakes = 0,
   });
 
   SoundMatchState copyWith({
@@ -54,6 +56,7 @@ class SoundMatchState {
     bool? isRandomMode,
     Set<String>? selectedCategoryIds,
     Object? activeCategoryName = _sentinel,
+    int? mistakes,
   }) {
     return SoundMatchState(
       choices: choices ?? this.choices,
@@ -69,6 +72,7 @@ class SoundMatchState {
       activeCategoryName: activeCategoryName == _sentinel
           ? this.activeCategoryName
           : activeCategoryName as String?,
+      mistakes: mistakes ?? this.mistakes,
     );
   }
 }

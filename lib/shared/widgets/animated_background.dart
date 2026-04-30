@@ -7,11 +7,13 @@ class AnimatedBackground extends StatelessWidget {
   // Controls how extreme the crop/scale is when drifting.
   // 1.1 means we scale to 110% of screen size to allow panning.
   final double scaleFactor;
+  final double opacity;
 
   const AnimatedBackground({
     super.key,
     required this.imagePath,
     this.scaleFactor = 1.1,
+    this.opacity = 1.0,
   });
 
   @override
@@ -22,10 +24,13 @@ class AnimatedBackground extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           // If the image fails to load, the pageBg color behind it will show.
-          Image.asset(
-            imagePath,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+          Opacity(
+            opacity: opacity,
+            child: Image.asset(
+              imagePath,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+            ),
           )
           .animate(onPlay: (controller) => controller.repeat(reverse: true))
           // Slowly drift in scale and position over 20 seconds

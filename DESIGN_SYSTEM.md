@@ -35,7 +35,18 @@ Located in `lib/core/services/`, these are accessed via Riverpod providers in `l
 
 ### Persistence Strategy
 -   **Settings**: Persistent flags (vibration, voice enabled, max screen time).
--   **Progress**: Keyed by `moduleId_categoryId_itemId` to track 1-5 star engagement.
+-   **Board Book Progress**: Keyed by `moduleId_itemId` to track tap engagement and star ratings.
+-   **Sound Match Scoring**: Keyed by `sm_stars_<categoryId>` (1–3 stars based on accuracy).
+
+### Audio Lifecycle Pattern (CRITICAL)
+When a `ConsumerStatefulWidget` hosts a game screen:
+1.  **Cache service refs in `initState()`**: `_audio = ref.read(audioServiceProvider)` — `ref` is invalid by `dispose()` time.
+2.  **Stop audio in `dispose()`**: Call `_voice.stop()` and `_audio.cancelSequence()` using the cached refs.
+3.  **Use `_disposed` flag in providers**: Set `_disposed = true` in `ref.onDispose()`. Guard **every** `speak()`, `playSound()`, and `Future.delayed` callback with `if (_disposed) return;`.
+4.  **Call stop in `ref.onDispose()`**: The provider's `ref.onDispose()` also calls `voiceEngine.stop()` and `audioService.cancelSequence()` to cut currently-playing audio immediately.
+
+### `autoDispose` for Game Providers
+All game providers (Sound Match, future modules) MUST use `AsyncNotifierProvider.autoDispose`. This ensures timers and state are destroyed the instant the child leaves the screen.
 
 ---
 
@@ -115,7 +126,7 @@ All interactive items (Content Cards, Activity Cards, Game Tiles) must adhere to
 
 ---
 
-*Updated: April 18, 2026 - Sensory Unification & Offline Reliability Pass.*
+*Updated: May 1, 2026 - Audio Lifecycle, Swipe Threshold & Sound Match Polish Pass.**
 
 ---
 
@@ -162,9 +173,29 @@ We follow a strict sequence to build sensory understanding:
 ### **Board Book**
 -   Interactive "Flashcard" style learning.
 -   Supports category-based swiping and per-item star progress.
+-   **Toddler Swipe Guard**: Uses `_HeavyPageScrollPhysics` (custom `PageScrollPhysics`) with `dragStartDistanceMotionThreshold: 150.0` to prevent accidental page turns when the child taps a card. Default Flutter threshold is ~18px — we use **150px**.
 
-### **Sound Match (Upcoming)**
--   2x2 grid matching game.
--   Uses the standardized "Dancing Drift" for game tiles.
+### **Sound Match**
+-   **Core Gameplay**: A grid matching game where children identify objects based on their sounds.
+-   **Difficulty Scaling**:
+    -   **Beginner**: 2 choices.
+    -   **Expert**: 4 choices (default).
+-   **Category Label**: A `PremiumAnimatedText` (bobbing) at the bottom of the game screen shows the active category name, or "✨ Random Category" in Random mode.
+-   **Parental Customization (Settings Screen)**:
+    -   **Random Mode toggle** (SwitchListTile): Draws from all categories combined.
+    -   **Multi-select category checkboxes**: Rotates through selected categories on each new level. At least one category is always enforced (last checkbox is disabled).
+    -   **`_suppressNextPrompt` flag**: Settings changes reload the level silently — no voice plays from the settings screen.
+-   **Scoring (Accuracy Stars)**:
+    -   **3 Stars**: Perfect match (0 mistakes).
+    -   **2 Stars**: 1 mistake.
+    -   **1 Star**: 2+ mistakes.
+    -   Best score is persisted per category via `ProgressService.recordSoundMatchResult()`.
+    -   Stars are always visible in settings (hollow if unplayed), even in Random Mode.
+    -   Scores are recorded even in Random Mode — the target's category is identified automatically.
+-   **Call to Action (CTA)**: Automated 12-second idle timer replays the prompt. Timer resets on every tap.
+-   **Audio Lifecycle**: Uses `_disposed` flag pattern. All audio stops immediately on back/home navigation.
+-   **Audio Sequencing**: "Identify this sound" (once per level) → [Target Sound] → [Correct Tap] → [Name TTS] → [Object Sound] → "Great job!"
 
 ---
+
+*Updated: May 1, 2026 - Audio Lifecycle, Board Book Swipe Guard & Sound Match Polish Pass.*

@@ -17,6 +17,12 @@ class SettingsService {
   static const _keyScreenTimeLimit = 'app_screen_time_limit';
   static const _keyMinutesUsedToday = 'app_minutes_used_today';
   static const _keyLastUsageDate = 'app_last_usage_date';
+  
+  // -- Bubble Pop Settings --
+  static const _keyBubblePopShowLetters = 'bubble_pop_show_letters';
+  static const _keyBubblePopShowNumbers = 'bubble_pop_show_numbers';
+  static const _keyBubblePopMaxBubbles = 'bubble_pop_max_bubbles';
+  static const _keyBubblePopSpeed = 'bubble_pop_speed';
 
   bool get isSoundEnabled => _prefs.getBool(_keySound) ?? true;
   Future<bool> setSoundEnabled(bool value) => _prefs.setBool(_keySound, value);
@@ -53,4 +59,18 @@ class SettingsService {
 
   String get lastUsageDate => _prefs.getString(_keyLastUsageDate) ?? '';
   Future<bool> setLastUsageDate(String value) => _prefs.setString(_keyLastUsageDate, value);
+
+  // -- Bubble Pop Features --
+
+  bool get bubblePopShowLetters => _prefs.getBool(_keyBubblePopShowLetters) ?? true;
+  Future<bool> setBubblePopShowLetters(bool value) => _prefs.setBool(_keyBubblePopShowLetters, value);
+
+  bool get bubblePopShowNumbers => _prefs.getBool(_keyBubblePopShowNumbers) ?? true;
+  Future<bool> setBubblePopShowNumbers(bool value) => _prefs.setBool(_keyBubblePopShowNumbers, value);
+
+  int get bubblePopMaxBubbles => _prefs.getInt(_keyBubblePopMaxBubbles) ?? 5;
+  Future<bool> setBubblePopMaxBubbles(int value) => _prefs.setInt(_keyBubblePopMaxBubbles, value);
+
+  double get bubblePopSpeed => _prefs.getDouble(_keyBubblePopSpeed) ?? 1.0;
+  Future<bool> setBubblePopSpeed(double value) => _prefs.setDouble(_keyBubblePopSpeed, value);
 }
