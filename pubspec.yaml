@@ -1,6 +1,6 @@
 name: trutouch
 description: TrueTouch - A toddler-friendly sensory exploration and early learning app.
-version: 1.0.0+1
+version: 1.0.1+2
 publish_to: none
 
 environment:
@@ -33,6 +33,7 @@ dependencies:
   confetti: ^0.8.0
   google_fonts: ^6.2.1
   flame: ^1.37.0
+  kiosk_mode: ^0.8.0
 
 dev_dependencies:
   flutter_test:

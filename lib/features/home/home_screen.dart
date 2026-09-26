@@ -6,6 +6,7 @@ import '../../core/services/audio_service.dart';
 import '../../shared/widgets/animated_background.dart';
 import '../../shared/widgets/premium_animated_text.dart';
 import 'widgets/activity_card.dart';
+import 'widgets/toddler_lock_button.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -85,6 +86,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                 ),
               ],
+            ),
+          ),
+          
+          // Toddler Lock Button in the bottom left corner
+          const SafeArea(
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: ToddlerLockButton(),
+              ),
             ),
           ),
         ],

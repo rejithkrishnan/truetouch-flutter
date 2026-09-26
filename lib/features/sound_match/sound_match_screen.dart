@@ -52,8 +52,9 @@ class _SoundMatchScreenState extends ConsumerState<SoundMatchScreen> {
       body: Stack(
         children: [
           const AnimatedBackground(
-            imagePath: 'assets/images/backgrounds/home_hub_bg.png', 
+            imagePath: 'assets/images/background_soundmatch.png', 
             scaleFactor: 1.15,
+            opacity: 0.5,
           ),
           
           SafeArea(

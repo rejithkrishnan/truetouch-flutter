@@ -10,11 +10,15 @@ class ParentalGate extends StatefulWidget {
   // Size of the invisible trigger zone
   final double hitboxSize;
   
+  // Whether the icon should be fully opaque
+  final bool isOpaque;
+  
   const ParentalGate({
     super.key,
     required this.child,
     required this.onUnlocked,
     this.hitboxSize = 80.0,
+    this.isOpaque = false,
   });
 
   @override
@@ -109,7 +113,7 @@ class _ParentalGateState extends State<ParentalGate> with SingleTickerProviderSt
             bottom: 24,
             child: IgnorePointer(
               child: Opacity(
-                opacity: 0.18,
+                opacity: widget.isOpaque ? 1.0 : 0.18,
                 child: Container(
                   width: widget.hitboxSize,
                   height: widget.hitboxSize,
@@ -124,7 +128,7 @@ class _ParentalGateState extends State<ParentalGate> with SingleTickerProviderSt
                     ],
                   ),
                   child: const Icon(
-                    Icons.lock_outline_rounded,
+                    Icons.settings_rounded,
                     color: Colors.black54,
                     size: 32,
                   ),

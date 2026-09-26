@@ -41,6 +41,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ShellRoute(
         builder: (context, state, child) {
           return ParentalGate(
+            isOpaque: state.uri.toString() == AppRoutes.home,
             onUnlocked: () {
               Navigator.of(context).push(
                 MaterialPageRoute(

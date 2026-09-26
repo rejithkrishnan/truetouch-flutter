@@ -67,12 +67,12 @@ class _BoardBookScreenState extends ConsumerState<BoardBookScreen> {
   @override
   void initState() {
     super.initState();
-    // Force a fresh shuffle every time we enter the screen
-    ref.invalidate(boardBookCategoriesProvider);
     
     // Cache audio service ref BEFORE dispose() — ref is dead by then!
     _audio = ref.read(audioServiceProvider);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Force a fresh shuffle every time we enter the screen
+      ref.invalidate(boardBookCategoriesProvider);
       _audio.switchTrack(BgmTrack.boardBook);
       // Generic welcome for VoiceEngine on entry
       ref.read(voiceEngineProvider).speak("Welcome back!!");

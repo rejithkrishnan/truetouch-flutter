@@ -55,3 +55,8 @@ All code and UI changes must adhere to the following design philosophy to mainta
 
 ## 🏆 7. Documentation & Continuity
 - **Memory Bank Integrity**: Always update the **`DESIGN_SYSTEM.md`** (Memory Bank) to track all architectural, design, or behavioral changes in the app. This ensures the sensory DNA and technical standards are preserved for all future development.
+
+## 🚫 8. No Graphify Tooling
+- **Strict Prohibition**: NEVER run, invoke, or configure Graphify (or the graphify skill/commands) in this repository.
+- Do NOT generate any `graphify-out/` or related cache files.
+- Codebase exploration must be done directly through standard file viewing and search tools (`view_file`, `grep_search`, `list_dir`).
