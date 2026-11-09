@@ -54,7 +54,7 @@ lib/
 └── shared/widgets/
     ├── premium_animated_text.dart     # Standardized text atom (staggered entrance, bobbing wave, drift)
     ├── parental_gate.dart             # 3-second hold gesture shell gate guarding parent settings
-    ├── toddler_lock_button.dart       # Screen-pinning button on Home using kiosk_mode
+    ├── hold_to_exit_button.dart       # 3-second hold to unpin & exit app with haptics
     ├── screen_time_overlay.dart       # Full-screen lock overlay when daily screen time is exhausted
     ├── category_celebration_overlay.dart # Confetti shower + trophy celebration modal
     ├── animated_background.dart       # Floating pastel ambient background image
@@ -67,7 +67,9 @@ lib/
 1. **Home Hub (`/home`)**:
    - Displays available learning games from `assets/data/modules.json`.
    - Displays personalized greeting for child (`childName` from settings).
-   - Bottom-left includes `ToddlerLockButton` (3-second hold to pin screen via `kiosk_mode`).
+   - Automatically triggers OS-level screen pinning (`startKioskMode()`) on startup.
+   - Wrapped in `PopScope(canPop: false)` to suppress system back gestures.
+   - Bottom-left includes `HoldToExitButton` (3-second hold with haptic pulses to unpin and exit).
 2. **Board Book (`/board-book`)**:
    - Category-based flashcard swiping.
    - **Toddler Swipe Guard**: Uses `_HeavyPageScrollPhysics` (`dragStartDistanceMotionThreshold: 150.0`) so taps never cause accidental page turns.

@@ -150,8 +150,11 @@ We follow a strict sequence to build sensory understanding:
 
 ---
 
-## 🛡️ 8. Child Safety & Parental Gate
--   **Gate Logic**: 3-second `onLongPress` required to exit the Child Zone.
+## 🛡️ 8. Child Safety, Auto-Lock & Parental Controls
+-   **Auto Kiosk Lock on Launch**: App automatically requests OS-level screen pinning / kiosk mode (`startKioskMode()`) on Home startup to prevent toddlers from escaping to the home screen or status bar.
+-   **Back Gesture Suppression (`PopScope`)**: Home screen is guarded with `PopScope(canPop: false)` so hardware back button or edge swipes cannot exit the app.
+-   **Hold-to-Exit (`HoldToExitButton`)**: Located in the bottom-left corner of the Home screen. Requires a 3-second continuous hold. Displays an **expand-and-fade heartbeat ripple animation** radiating from 52px to 125px (well beyond the user's thumb) accompanied by an unobstructed outer progress halo (76px diameter) and 450ms rhythmic haptic pulses. When completed, it unpins the screen (`stopKioskMode()`) and cleanly terminates the app (`SystemNavigator.pop()`).
+-   **Parental Gate**: 3-second hold required on the settings gear icon to access the Parent Menu.
 -   **Screen Time**: Automatically redirects to the Parental Menu when the daily limit (set by `ScreenTimeService`) is reached.
 
 ---
